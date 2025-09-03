@@ -1,0 +1,197 @@
+# ==============================================
+# DASHBOARD CHATVOLT - .GITIGNORE
+# Protege credenciais e arquivos sensíveis
+# ==============================================
+
+# 🔐 CREDENCIAIS E SECRETS (PRIORIDADE MÁXIMA)
+# ===============================================
+# Arquivos de configuração com credenciais reais
+collector_config.json
+collector_config_sample.json
+credentials.json
+service-account.json
+google-credentials.json
+chatvolt-credentials.json
+
+# Secrets do Streamlit
+secrets.toml
+.streamlit/secrets.toml
+
+# Arquivos de ambiente
+.env
+.env.local
+.env.production
+.env.staging
+
+# Chaves de API
+api-keys.txt
+*.key
+*.pem
+
+# 🐍 PYTHON
+# ===============================================
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Virtual environments
+venv/
+ENV/
+env/
+.env/
+.venv/
+myenv/
+
+# 📊 DADOS E LOGS
+# ===============================================
+# Logs de aplicação
+*.log
+logs/
+log/
+chatvolt_collector.log
+app.log
+debug.log
+
+# Dados temporários
+data/
+temp/
+tmp/
+*.tmp
+*.temp
+
+# Backups de dados
+*.bak
+*.backup
+backup/
+
+# 🛠️ DESENVOLVIMENTO
+# ===============================================
+# IDE específicos
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# 🏗️ BUILD E DEPLOY
+# ===============================================
+# Node modules (se usar)
+node_modules/
+
+# Build outputs
+build/
+dist/
+
+# 🔄 SISTEMA E OS
+# ===============================================
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Windows
+desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+
+# 📱 ESPECÍFICOS DO PROJETO
+# ===============================================
+# Arquivos de teste locais
+test_data.json
+test_config.json
+mock_data/
+
+# Screenshots/imagens temporárias
+screenshots/
+temp_images/
+
+# Arquivos de análise temporários
+analysis/
+reports/
+exports/
+
+# Cache do Streamlit
+.streamlit/cache/
+
+# 📦 OUTROS
+# ===============================================
+# Compressed files
+*.zip
+*.tar.gz
+*.rar
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# ==============================================
+# SEMPRE MANTER ESTES ARQUIVOS PÚBLICOS:
+# ==============================================
+# ✅ dashboard_chatvolt.py (SEM credenciais)
+# ✅ requirements.txt  
+# ✅ README.md
+# ✅ .streamlit/config.toml
+# ✅ background_collector.py (SEM credenciais)
+# ✅ test_connection.py
+# ✅ Este arquivo .gitignore
