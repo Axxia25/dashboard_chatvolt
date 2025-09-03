@@ -1,7 +1,6 @@
 """
 DASHBOARD REACH IA - ANÁLISE INTELIGENTE DE CONVERSAS
-Sistema avançado de métricas com IA para otimização de atendimento
-Deploy: Streamlit Cloud - Versão Premium Design
+Sistema Premium de Métricas com IA - Visual Elegante + Dados Ricos
 """
 
 import streamlit as st
@@ -18,7 +17,7 @@ from datetime import datetime, timedelta
 import pytz
 import numpy as np
 
-# Configuração da página com tema premium
+# Configuração da página
 st.set_page_config(
     page_title="Dashboard Reach IA",
     page_icon="🚀",
@@ -26,943 +25,1016 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Configurações da API Chatvolt
+# Configurações
 CHATVOLT_API_BASE = "https://api.chatvolt.ai"
 SCOPES = [
     'https://www.googleapis.com/auth/spreadsheets',
     'https://www.googleapis.com/auth/drive'
 ]
-
-# ID da planilha Google Sheets
 PLANILHA_ID = "1Ji8hgGiQanGKMqblxRzkA_E_sLoI6AnpapmU72nXHsA"
 
-def apply_premium_styling():
-    """Aplica estilo premium com tema azul escuro e degradê"""
-    st.markdown("""
-    <style>
-    /* ============= TEMA PRINCIPAL REACH IA ============= */
+# Estado do tema
+if 'dark_mode' not in st.session_state:
+    st.session_state.dark_mode = True
+
+def apply_elegant_styling():
+    """Aplica estilo elegante e moderno com toggle claro/escuro"""
     
-    /* Background principal com degradê azul escuro */
-    .stApp {
-        background: linear-gradient(135deg, #0f1419 0%, #1a2332 25%, #2d3748 50%, #1a2332 75%, #0f1419 100%);
-        background-attachment: fixed;
-    }
-    
-    /* Container principal */
-    .main .block-container {
-        background: rgba(255, 255, 255, 0.02);
-        backdrop-filter: blur(10px);
-        border-radius: 20px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        padding: 2rem;
-        margin-top: 1rem;
-    }
-    
-    /* ============= HEADER REACH IA ============= */
-    
-    /* Título principal */
-    h1 {
-        background: linear-gradient(135deg, #64b5f6 0%, #1e88e5 50%, #0d47a1 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        font-weight: 800;
-        font-size: 3rem !important;
-        text-align: center;
-        margin-bottom: 0.5rem;
-        text-shadow: 0 0 30px rgba(100, 181, 246, 0.3);
-    }
-    
-    /* Subtítulo */
-    .subtitle {
-        color: #90caf9;
-        text-align: center;
-        font-size: 1.2rem;
-        font-weight: 300;
-        margin-bottom: 2rem;
-        opacity: 0.9;
-    }
-    
-    /* ============= CARDS PREMIUM ============= */
-    
-    /* Métricas cards */
-    [data-testid="metric-container"] {
-        background: linear-gradient(135deg, rgba(100, 181, 246, 0.1) 0%, rgba(30, 136, 229, 0.1) 100%);
-        border: 1px solid rgba(100, 181, 246, 0.2);
-        padding: 1.5rem;
-        border-radius: 15px;
-        box-shadow: 0 8px 32px rgba(100, 181, 246, 0.1);
-        backdrop-filter: blur(10px);
-        transition: all 0.3s ease;
-    }
-    
-    [data-testid="metric-container"]:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 45px rgba(100, 181, 246, 0.2);
-        border-color: rgba(100, 181, 246, 0.4);
-    }
-    
-    /* Valores das métricas */
-    [data-testid="metric-container"] > div > div > div > div {
-        color: #e3f2fd !important;
-        font-size: 2rem !important;
-        font-weight: 700 !important;
-        text-shadow: 0 0 10px rgba(227, 242, 253, 0.3);
-    }
-    
-    /* Labels das métricas */
-    [data-testid="metric-container"] > div > div > div:first-child {
-        color: #90caf9 !important;
-        font-size: 0.9rem !important;
-        font-weight: 500 !important;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    
-    /* ============= SIDEBAR PREMIUM ============= */
-    
-    .css-1d391kg {
-        background: linear-gradient(180deg, rgba(15, 20, 25, 0.95) 0%, rgba(26, 35, 50, 0.95) 100%);
-        backdrop-filter: blur(15px);
-        border-right: 1px solid rgba(100, 181, 246, 0.2);
-    }
-    
-    /* Título da sidebar */
-    .css-1d391kg .css-10trblm {
-        color: #64b5f6;
-        font-weight: 600;
-        font-size: 1.1rem;
-    }
-    
-    /* ============= COMPONENTES INTERATIVOS ============= */
-    
-    /* Botões */
-    .stButton > button {
-        background: linear-gradient(135deg, #1e88e5 0%, #1976d2 100%);
-        color: white;
-        border: none;
-        border-radius: 10px;
-        padding: 0.75rem 1.5rem;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(30, 136, 229, 0.3);
-    }
-    
-    .stButton > button:hover {
-        background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(30, 136, 229, 0.4);
-    }
-    
-    /* Selectbox */
-    .stSelectbox > div > div {
-        background: rgba(100, 181, 246, 0.1);
-        border: 1px solid rgba(100, 181, 246, 0.3);
-        border-radius: 8px;
-        color: #e3f2fd;
-    }
-    
-    /* Date input */
-    .stDateInput > div > div {
-        background: rgba(100, 181, 246, 0.1);
-        border: 1px solid rgba(100, 181, 246, 0.3);
-        border-radius: 8px;
-        color: #e3f2fd;
-    }
-    
-    /* Checkbox */
-    .stCheckbox > label {
-        color: #90caf9 !important;
-        font-weight: 500;
-    }
-    
-    /* Radio buttons */
-    .stRadio > label {
-        color: #90caf9 !important;
-        font-weight: 500;
-    }
-    
-    /* ============= ABAS ============= */
-    
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 8px;
-        background: rgba(100, 181, 246, 0.05);
-        border-radius: 10px;
-        padding: 0.5rem;
-    }
-    
-    .stTabs [data-baseweb="tab"] {
-        background: rgba(100, 181, 246, 0.1);
-        border-radius: 8px;
-        color: #90caf9;
-        font-weight: 600;
-        border: 1px solid rgba(100, 181, 246, 0.2);
-        transition: all 0.3s ease;
-    }
-    
-    .stTabs [data-baseweb="tab"][aria-selected="true"] {
-        background: linear-gradient(135deg, #1e88e5 0%, #1976d2 100%);
-        color: white;
-        border-color: #1976d2;
-        box-shadow: 0 4px 15px rgba(30, 136, 229, 0.3);
-    }
-    
-    /* ============= GRÁFICOS ============= */
-    
-    /* Container dos gráficos */
-    .js-plotly-plot {
-        background: rgba(255, 255, 255, 0.02) !important;
-        border-radius: 15px;
-        border: 1px solid rgba(100, 181, 246, 0.1);
-        backdrop-filter: blur(10px);
-    }
-    
-    /* ============= DATAFRAME ============= */
-    
-    .stDataFrame {
-        background: rgba(255, 255, 255, 0.02);
-        border-radius: 10px;
-        border: 1px solid rgba(100, 181, 246, 0.2);
-        overflow: hidden;
-    }
-    
-    .stDataFrame table {
-        background: transparent !important;
-        color: #e3f2fd !important;
-    }
-    
-    .stDataFrame th {
-        background: rgba(100, 181, 246, 0.2) !important;
-        color: #ffffff !important;
-        font-weight: 600;
-    }
-    
-    .stDataFrame td {
-        border-color: rgba(100, 181, 246, 0.1) !important;
-    }
-    
-    /* ============= ALERTS E MENSAGENS ============= */
-    
-    .stAlert {
-        background: rgba(100, 181, 246, 0.1);
-        border: 1px solid rgba(100, 181, 246, 0.3);
-        border-radius: 10px;
-        color: #e3f2fd;
-    }
-    
-    .stSuccess {
-        background: rgba(76, 175, 80, 0.1);
-        border: 1px solid rgba(76, 175, 80, 0.3);
-        color: #c8e6c9;
-    }
-    
-    .stError {
-        background: rgba(244, 67, 54, 0.1);
-        border: 1px solid rgba(244, 67, 54, 0.3);
-        color: #ffcdd2;
-    }
-    
-    .stWarning {
-        background: rgba(255, 152, 0, 0.1);
-        border: 1px solid rgba(255, 152, 0, 0.3);
-        color: #ffe0b2;
-    }
-    
-    /* ============= TEXTOS GERAIS ============= */
-    
-    .css-10trblm {
-        color: #e3f2fd;
-    }
-    
-    .markdown-text-container {
-        color: #b3e5fc;
-    }
-    
-    /* ============= FOOTER ============= */
-    
-    .footer {
-        background: linear-gradient(135deg, rgba(100, 181, 246, 0.1) 0%, rgba(30, 136, 229, 0.1) 100%);
-        border: 1px solid rgba(100, 181, 246, 0.2);
-        border-radius: 10px;
-        padding: 1rem;
-        margin-top: 2rem;
-        text-align: center;
-        color: #90caf9;
-        font-size: 0.9rem;
-    }
-    
-    /* ============= SPINNER LOADING ============= */
-    
-    .stSpinner {
-        color: #64b5f6 !important;
-    }
-    
-    /* ============= RESPONSIVIDADE ============= */
-    
-    @media (max-width: 768px) {
-        h1 {
-            font-size: 2rem !important;
+    if st.session_state.dark_mode:
+        # TEMA ESCURO ELEGANTE
+        st.markdown("""
+        <style>
+        /* ============= TEMA ESCURO ELEGANTE ============= */
+        
+        .stApp {
+            background: linear-gradient(135deg, #1e1e2e 0%, #2a2d47 50%, #1e1e2e 100%);
+            color: #ffffff;
         }
         
         .main .block-container {
-            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            max-width: 95%;
         }
         
+        /* Header moderno */
+        .main-header {
+            text-align: center;
+            padding: 1rem 0 2rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .main-title {
+            font-size: 2.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #60a5fa, #3b82f6, #1d4ed8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        
+        .main-subtitle {
+            font-size: 1.1rem;
+            color: #94a3b8;
+            font-weight: 400;
+        }
+        
+        /* Cards elegantes */
         [data-testid="metric-container"] {
-            padding: 1rem;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.1));
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 16px;
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
-def safe_get_column(df, column_name, default_value=None):
-    """Retorna coluna do DataFrame ou valor padrão se não existir"""
-    if column_name in df.columns:
-        return df[column_name]
+        
+        [data-testid="metric-container"]:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(59, 130, 246, 0.1);
+            border-color: rgba(59, 130, 246, 0.4);
+        }
+        
+        /* Valores das métricas */
+        [data-testid="metric-container"] [data-testid="metric-value"] {
+            font-size: 2.25rem !important;
+            font-weight: 700 !important;
+            color: #ffffff !important;
+        }
+        
+        /* Labels das métricas */
+        [data-testid="metric-container"] [data-testid="metric-label"] {
+            font-size: 0.875rem !important;
+            color: #94a3b8 !important;
+            font-weight: 500 !important;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        /* Sidebar elegante */
+        .css-1d391kg {
+            background: linear-gradient(180deg, #1e1e2e, #2a2d47);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Botões modernos */
+        .stButton > button {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+        
+        .stButton > button:hover {
+            background: linear-gradient(135deg, #1d4ed8, #1e40af);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.5);
+        }
+        
+        /* Toggle theme button */
+        .theme-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 999;
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .theme-toggle:hover {
+            background: rgba(59, 130, 246, 0.4);
+            transform: scale(1.1);
+        }
+        
+        /* Gráficos com fundo escuro */
+        .js-plotly-plot {
+            background: rgba(255, 255, 255, 0.05) !important;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        /* Tabelas elegantes */
+        .stDataFrame {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+        }
+        
+        .stDataFrame table {
+            background: transparent !important;
+        }
+        
+        .stDataFrame th {
+            background: rgba(59, 130, 246, 0.2) !important;
+            color: #ffffff !important;
+            font-weight: 600 !important;
+        }
+        
+        /* Abas modernas */
+        .stTabs [data-baseweb="tab-list"] {
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 0.5rem;
+        }
+        
+        .stTabs [data-baseweb="tab"] {
+            background: transparent;
+            border-radius: 8px;
+            color: #94a3b8;
+            font-weight: 500;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .stTabs [data-baseweb="tab"][aria-selected="true"] {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            border-color: #3b82f6;
+        }
+        
+        /* Alerts elegantes */
+        .stAlert {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 12px;
+            color: #ffffff;
+        }
+        
+        .stSuccess {
+            background: rgba(34, 197, 94, 0.1);
+            border-color: rgba(34, 197, 94, 0.2);
+        }
+        
+        .stError {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.2);
+        }
+        
+        .stWarning {
+            background: rgba(245, 158, 11, 0.1);
+            border-color: rgba(245, 158, 11, 0.2);
+        }
+        </style>
+        """, unsafe_allow_html=True)
     else:
-        if default_value is None:
-            if df.empty:
-                return pd.Series(dtype='object')
-            return pd.Series([None] * len(df))
-        return pd.Series([default_value] * len(df))
-
-def ensure_required_columns(df):
-    """Garante que DataFrame tenha todas as colunas necessárias"""
-    required_columns = {
-        'conversation_id': '',
-        'created_at': pd.NaT,
-        'updated_at': pd.NaT,
-        'status': 'UNKNOWN',
-        'priority': 'MEDIUM',
-        'channel': 'unknown',
-        'visitor_id': '',
-        'agent_id': '',
-        'frustration_level': 0,
-        'first_response_time': 0,
-        'resolution_time': 0,
-        'message_count': 0,
-        'satisfaction_score': 0,
-        'resolved': False,
-        'escalated_to_human': False,
-        'contact_name': '',
-        'contact_email': ''
-    }
-    
-    for col, default_val in required_columns.items():
-        if col not in df.columns:
-            df[col] = default_val
-    
-    return df
-
-class ChatvoltDataCollector:
-    """Classe para coleta de dados da API Chatvolt"""
-    
-    def __init__(self, api_key):
-        self.api_key = api_key
-        self.headers = {
-            'Authorization': f'Bearer {api_key}',
-            'Content-Type': 'application/json'
+        # TEMA CLARO ELEGANTE
+        st.markdown("""
+        <style>
+        /* ============= TEMA CLARO ELEGANTE ============= */
+        
+        .stApp {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #f1f5f9 100%);
+            color: #1e293b;
         }
-        self.base_url = CHATVOLT_API_BASE
+        
+        .main .block-container {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            padding: 2rem;
+            max-width: 95%;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        }
+        
+        /* Header claro */
+        .main-header {
+            text-align: center;
+            padding: 1rem 0 2rem 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .main-title {
+            font-size: 2.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8, #1e40af);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        
+        .main-subtitle {
+            font-size: 1.1rem;
+            color: #64748b;
+            font-weight: 400;
+        }
+        
+        /* Cards claro */
+        [data-testid="metric-container"] {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 16px;
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        [data-testid="metric-container"]:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(59, 130, 246, 0.2);
+            border-color: rgba(59, 130, 246, 0.4);
+        }
+        
+        /* Valores métricas claro */
+        [data-testid="metric-container"] [data-testid="metric-value"] {
+            font-size: 2.25rem !important;
+            font-weight: 700 !important;
+            color: #1e293b !important;
+        }
+        
+        [data-testid="metric-container"] [data-testid="metric-label"] {
+            font-size: 0.875rem !important;
+            color: #64748b !important;
+            font-weight: 500 !important;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        /* Sidebar claro */
+        .css-1d391kg {
+            background: linear-gradient(180deg, #ffffff, #f8fafc);
+            border-right: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Botões claro */
+        .stButton > button {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+        
+        .stButton > button:hover {
+            background: linear-gradient(135deg, #1d4ed8, #1e40af);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+        }
+        
+        /* Toggle tema claro */
+        .theme-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 999;
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        /* Gráficos claro */
+        .js-plotly-plot {
+            background: rgba(255, 255, 255, 0.9) !important;
+            border-radius: 16px;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+        
+        /* Tabelas claro */
+        .stDataFrame {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .stDataFrame th {
+            background: rgba(59, 130, 246, 0.1) !important;
+            color: #1e293b !important;
+            font-weight: 600 !important;
+        }
+        </style>
+        """, unsafe_allow_html=True)
 
-@st.cache_data(ttl=300)  # Cache por 5 minutos
-def get_data_from_sheets():
-    """Carrega dados das conversas da planilha Google - VERSÃO PREMIUM"""
+def toggle_theme():
+    """Toggle entre tema claro e escuro"""
+    st.session_state.dark_mode = not st.session_state.dark_mode
+
+@st.cache_data(ttl=300)
+def get_rich_data_from_sheets():
+    """Carrega dados ricos das duas abas da planilha"""
     try:
-        # Verificar se secrets existem
         if 'GOOGLE_CREDENTIALS' not in st.secrets:
             st.error("🔐 Credenciais do Google não configuradas")
-            return pd.DataFrame()
+            return pd.DataFrame(), pd.DataFrame()
         
-        # Configurar credenciais
         creds_dict = dict(st.secrets['GOOGLE_CREDENTIALS'])
         creds = Credentials.from_service_account_info(creds_dict, scopes=SCOPES)
         client = gspread.authorize(creds)
+        sheet = client.open_by_key(PLANILHA_ID)
         
-        # Conectar com a planilha
+        # Carregar aba "Conversas"
+        conversas_df = pd.DataFrame()
         try:
-            sheet = client.open_by_key(PLANILHA_ID)
+            conversas_ws = sheet.worksheet('Conversas')
+            conversas_data = conversas_ws.get_all_values()
+            if len(conversas_data) > 1:
+                headers = conversas_data[0]
+                rows = conversas_data[1:]
+                rows = [row for row in rows if any(cell.strip() for cell in row if cell)]
+                if rows:
+                    conversas_df = pd.DataFrame(rows, columns=headers)
+                    st.success(f"✅ Aba Conversas: {len(conversas_df)} registros")
         except Exception as e:
-            st.error(f"❌ Erro ao abrir planilha: {e}")
-            return pd.DataFrame()
+            st.warning(f"⚠️ Aba Conversas não encontrada: {e}")
         
-        # Buscar aba de conversas
-        worksheet_names = ['Conversas', 'Conversations', 'Atendimentos', 'Sheet1']
-        worksheet = None
-        
-        for name in worksheet_names:
-            try:
-                worksheet = sheet.worksheet(name)
-                st.success(f"✅ Conectado à aba: **{name}**")
-                break
-            except:
-                continue
-        
-        if not worksheet:
-            st.error("❌ Nenhuma aba encontrada na planilha")
-            return pd.DataFrame()
-        
-        # Coletar dados
+        # Carregar aba "Contatos" (dados ricos)
+        contatos_df = pd.DataFrame()
         try:
-            all_values = worksheet.get_all_values()
+            contatos_ws = sheet.worksheet('Contatos')
+            contatos_data = contatos_ws.get_all_values()
+            if len(contatos_data) > 1:
+                headers = contatos_data[0]
+                rows = contatos_data[1:]
+                rows = [row for row in rows if any(cell.strip() for cell in row if cell)]
+                if rows:
+                    # Garantir mesmo número de colunas
+                    max_cols = len(headers)
+                    processed_rows = []
+                    for row in rows:
+                        while len(row) < max_cols:
+                            row.append('')
+                        processed_rows.append(row[:max_cols])
+                    
+                    contatos_df = pd.DataFrame(processed_rows, columns=headers)
+                    st.success(f"✅ Aba Contatos: {len(contatos_df)} registros com {len(headers)} campos")
         except Exception as e:
-            st.error(f"❌ Erro ao ler dados da planilha: {e}")
-            return pd.DataFrame()
+            st.warning(f"⚠️ Aba Contatos não encontrada: {e}")
         
-        if not all_values:
-            st.warning("⚠️ Planilha completamente vazia")
-            return pd.DataFrame()
-        
-        if len(all_values) < 2:
-            st.warning("⚠️ Planilha só tem cabeçalhos, sem dados")
-            return pd.DataFrame()
-        
-        headers = all_values[0]
-        data_rows = all_values[1:]
-        
-        # Filtrar linhas completamente vazias
-        data_rows = [row for row in data_rows if any(cell.strip() for cell in row if cell)]
-        
-        if not data_rows:
-            st.warning("⚠️ Nenhuma linha de dados encontrada")
-            return pd.DataFrame()
-        
-        # Criar DataFrame
-        max_cols = len(headers)
-        processed_rows = []
-        
-        for row in data_rows:
-            # Garantir que a linha tenha o mesmo número de colunas
-            while len(row) < max_cols:
-                row.append('')
-            row = row[:max_cols]  # Truncar se tiver colunas extras
-            processed_rows.append(row)
-        
-        df = pd.DataFrame(processed_rows, columns=headers)
-        
-        st.success(f"🚀 **{len(df)} registros** carregados com sucesso")
-        
-        # Processar dados
-        return process_chatvolt_data(df)
+        return conversas_df, contatos_df
         
     except Exception as e:
-        st.error(f"❌ Erro geral ao carregar dados: {e}")
-        return pd.DataFrame()
+        st.error(f"❌ Erro ao carregar dados: {e}")
+        return pd.DataFrame(), pd.DataFrame()
 
-def process_chatvolt_data(df):
-    """Processa e limpa dados do Chatvolt - VERSÃO PREMIUM"""
-    if df.empty:
-        return df
+def process_rich_data(conversas_df, contatos_df):
+    """Processa e enriquece os dados combinando as duas abas"""
     
-    # Garantir colunas obrigatórias
-    df = ensure_required_columns(df)
+    if not contatos_df.empty:
+        # Usar dados da aba Contatos (mais rica)
+        df = contatos_df.copy()
+        st.info("📊 Usando dados enriquecidos da aba Contatos")
+    elif not conversas_df.empty:
+        # Fallback para aba Conversas
+        df = conversas_df.copy()
+        st.info("📊 Usando dados básicos da aba Conversas")
+    else:
+        st.warning("⚠️ Nenhum dado encontrado em ambas as abas")
+        return pd.DataFrame()
     
-    # Processar timestamps de forma defensiva
+    # Processar campos essenciais
+    essential_fields = [
+        'conversation_id', 'created_at', 'status', 'channel', 'priority',
+        'frustration_level', 'first_response_time', 'satisfaction_score',
+        'context_sentiment', 'mentions_product', 'mentions_price',
+        'var_preco', 'quantidade_pneus', 'modelo_pneu'
+    ]
+    
+    for field in essential_fields:
+        if field not in df.columns:
+            if field in ['mentions_product', 'mentions_price']:
+                df[field] = False
+            elif field == 'context_sentiment':
+                df[field] = 'neutral'
+            else:
+                df[field] = '' if field in ['conversation_id', 'status', 'channel'] else 0
+    
+    # Processar timestamps
     for time_col in ['created_at', 'updated_at']:
         if time_col in df.columns:
-            try:
-                # Tentar diferentes formatos de data
-                df[time_col] = pd.to_datetime(df[time_col], format='%d/%m/%Y %H:%M:%S', errors='coerce')
-                if df[time_col].isna().all():
-                    df[time_col] = pd.to_datetime(df[time_col], errors='coerce')
-                
-                # Se ainda estão NaT, usar data atual
-                if df[time_col].isna().all():
-                    df[time_col] = datetime.now()
-            except:
-                df[time_col] = datetime.now()
+            df[time_col] = pd.to_datetime(df[time_col], errors='coerce', dayfirst=True)
     
-    # Processar campos numéricos de forma segura
-    numeric_fields = ['frustration_level', 'first_response_time', 'resolution_time',
-                     'message_count', 'satisfaction_score']
-    
+    # Processar campos numéricos
+    numeric_fields = ['frustration_level', 'first_response_time', 'satisfaction_score', 'var_preco', 'quantidade_pneus']
     for field in numeric_fields:
         if field in df.columns:
-            try:
-                df[field] = pd.to_numeric(df[field], errors='coerce').fillna(0)
-            except:
-                df[field] = 0
+            df[field] = pd.to_numeric(df[field], errors='coerce').fillna(0)
     
-    # Processar campos booleanos de forma segura
-    bool_fields = ['resolved', 'escalated_to_human']
+    # Processar campos booleanos
+    bool_fields = ['mentions_product', 'mentions_price', 'resolved', 'escalated_to_human']
     for field in bool_fields:
         if field in df.columns:
-            try:
-                df[field] = df[field].astype(str).str.lower().isin(['true', 'sim', 'yes', '1'])
-            except:
-                df[field] = False
+            df[field] = df[field].astype(str).str.lower().isin(['true', 'sim', 'yes', '1'])
     
-    # Processar status e prioridade
-    try:
+    # Processar status
+    if 'status' in df.columns:
         df['status'] = df['status'].astype(str).str.upper()
         df['is_resolved'] = df['status'] == 'RESOLVED'
         df['needs_human'] = df['status'] == 'HUMAN_REQUESTED'
-    except:
-        df['is_resolved'] = False
-        df['needs_human'] = False
     
-    try:
-        df['priority'] = df['priority'].astype(str).str.upper()
-    except:
-        df['priority'] = 'MEDIUM'
-    
-    # Calcular campos derivados de forma segura
-    try:
-        if 'created_at' in df.columns and not df['created_at'].isna().all():
-            df['hour_of_day'] = df['created_at'].dt.hour
-            df['day_of_week'] = df['created_at'].dt.day_name()
-            df['date'] = df['created_at'].dt.date
-        else:
-            df['hour_of_day'] = 12
-            df['day_of_week'] = 'Monday'
-            df['date'] = datetime.now().date()
-    except:
-        df['hour_of_day'] = 12
-        df['day_of_week'] = 'Monday'
-        df['date'] = datetime.now().date()
-    
-    # Classificar frustração
-    try:
-        df['frustration_category'] = df['frustration_level'].apply(classify_frustration)
-    except:
-        df['frustration_category'] = 'Não Informado'
+    # Classificar sentimento
+    if 'context_sentiment' in df.columns:
+        sentiment_map = {'positive': 'Positivo', 'negative': 'Negativo', 'neutral': 'Neutro'}
+        df['sentiment_pt'] = df['context_sentiment'].map(sentiment_map).fillna('Neutro')
     
     # Filtrar registros válidos
-    try:
-        df = df[df['conversation_id'].notna() & (df['conversation_id'].astype(str) != '') & (df['conversation_id'].astype(str) != 'nan')]
-    except:
-        pass
+    df = df[df['conversation_id'].notna() & (df['conversation_id'].astype(str) != '')]
     
     return df
 
-def classify_frustration(level):
-    """Classifica nível de frustração de forma segura"""
-    try:
-        if pd.isna(level) or level == 0:
-            return 'Não Informado'
-        elif level <= 2:
-            return 'Baixo'
-        elif level <= 4:
-            return 'Médio'
+def create_metric_card(title, value, delta=None, help_text=None, icon="📊"):
+    """Cria um card de métrica elegante"""
+    col = st.columns(1)[0]
+    with col:
+        if delta:
+            st.metric(
+                label=f"{icon} {title}",
+                value=value,
+                delta=delta,
+                help=help_text
+            )
         else:
-            return 'Alto'
-    except:
-        return 'Não Informado'
+            st.metric(
+                label=f"{icon} {title}",
+                value=value,
+                help=help_text
+            )
 
-def create_premium_metrics_cards(df):
-    """Cria cards de métricas principais - DESIGN PREMIUM"""
+def create_elegant_kpi_section(df):
+    """Seção de KPIs principais com design elegante"""
     if df.empty:
         st.warning("📊 Aguardando dados para análise...")
-        
-        # Mostrar métricas zeradas com visual premium
-        col1, col2, col3, col4 = st.columns(4)
-        with col1:
-            st.metric("💬 Total de Conversas", 0, help="Total de conversas no período selecionado")
-            st.metric("✅ Taxa de Resolução", "0%", help="Percentual de conversas resolvidas")
-        with col2:
-            st.metric("⚡ Tempo de Resposta", "0s", help="Tempo médio para primeira resposta")
-            st.metric("🏁 Tempo de Resolução", "0min", help="Tempo médio para resolver conversa")
-        with col3:
-            st.metric("😊 Satisfação Média", "0/5", help="Nota média de satisfação do cliente")
-            st.metric("🆘 Escalações", "0 (0%)", help="Conversas escaladas para humanos")
-        with col4:
-            st.metric("📱 WhatsApp", 0, help="Conversas via WhatsApp")
-            st.metric("💻 Dashboard", 0, help="Conversas via Dashboard")
         return
     
-    # Calcular métricas de forma segura
+    st.markdown("### 📊 Indicadores Principais")
+    
+    # Calcular KPIs
     total_conversas = len(df)
+    taxa_resolucao = (df.get('is_resolved', pd.Series([False])).sum() / total_conversas * 100) if total_conversas > 0 else 0
+    tempo_resposta = df.get('first_response_time', pd.Series([0])).mean()
+    satisfacao = df.get('satisfaction_score', pd.Series([0])).mean()
     
-    try:
-        conversas_resolvidas = safe_get_column(df, 'is_resolved', False).sum()
-        taxa_resolucao = (conversas_resolvidas / total_conversas * 100) if total_conversas > 0 else 0
-    except:
-        conversas_resolvidas = 0
-        taxa_resolucao = 0
+    # Análises IA (se disponível)
+    sentimento_positivo = (df.get('context_sentiment', pd.Series([])) == 'positive').sum() if 'context_sentiment' in df.columns else 0
+    mencoes_produto = df.get('mentions_product', pd.Series([False])).sum() if 'mentions_product' in df.columns else 0
+    valor_medio = df.get('var_preco', pd.Series([0])).mean() if 'var_preco' in df.columns else 0
     
-    try:
-        tempo_resposta_medio = safe_get_column(df, 'first_response_time', 0).mean()
-        tempo_resolucao_medio = safe_get_column(df, 'resolution_time', 0).mean()
-    except:
-        tempo_resposta_medio = 0
-        tempo_resolucao_medio = 0
-    
-    try:
-        satisfacao_media = safe_get_column(df, 'satisfaction_score', 0).mean()
-    except:
-        satisfacao_media = 0
-    
-    try:
-        escalacoes = safe_get_column(df, 'needs_human', False).sum()
-        taxa_escalacao = (escalacoes / total_conversas * 100) if total_conversas > 0 else 0
-    except:
-        escalacoes = 0
-        taxa_escalacao = 0
-    
-    try:
-        canais_stats = safe_get_column(df, 'channel', 'unknown').value_counts().to_dict()
-    except:
-        canais_stats = {}
-    
-    # Exibir métricas com visual premium
+    # Layout em grid 4x2
     col1, col2, col3, col4 = st.columns(4)
     
     with col1:
-        st.metric(
-            "💬 Total de Conversas", 
+        create_metric_card(
+            "Total Conversas", 
             f"{total_conversas:,}", 
-            help="Total de conversas no período selecionado"
+            help_text="Total de conversas analisadas"
         )
-        delta_resolucao = "↗️" if taxa_resolucao > 70 else "↘️"
-        st.metric(
-            "✅ Taxa de Resolução", 
+        
+    with col2:
+        delta_resolucao = "↗️ Boa" if taxa_resolucao > 70 else "↘️ Baixa"
+        create_metric_card(
+            "Taxa Resolução", 
             f"{taxa_resolucao:.1f}%", 
             delta=delta_resolucao,
-            help="Percentual de conversas resolvidas com sucesso"
+            help_text="Percentual de conversas resolvidas"
         )
-    
-    with col2:
-        delta_resposta = "↗️" if tempo_resposta_medio < 60 else "↘️"
-        st.metric(
-            "⚡ Tempo de Resposta", 
-            f"{tempo_resposta_medio:.1f}s", 
-            delta=delta_resposta,
-            help="Tempo médio para primeira resposta"
-        )
-        st.metric(
-            "🏁 Tempo de Resolução", 
-            f"{tempo_resolucao_medio:.1f}min", 
-            help="Tempo médio para resolver conversa"
-        )
-    
+        
     with col3:
-        delta_satisfacao = "↗️" if satisfacao_media > 3.5 else "↘️"
-        st.metric(
-            "😊 Satisfação Média", 
-            f"{satisfacao_media:.1f}/5", 
-            delta=delta_satisfacao,
-            help="Nota média de satisfação do cliente"
+        delta_tempo = "↗️ Rápido" if tempo_resposta < 60 else "↘️ Lento"
+        create_metric_card(
+            "Tempo Resposta", 
+            f"{tempo_resposta:.0f}s", 
+            delta=delta_tempo,
+            help_text="Tempo médio de primeira resposta"
         )
-        delta_escalacao = "↘️" if taxa_escalacao < 20 else "↗️"
-        st.metric(
-            "🆘 Escalações", 
-            f"{escalacoes} ({taxa_escalacao:.1f}%)", 
-            delta=delta_escalacao,
-            help="Conversas escaladas para atendimento humano"
-        )
-    
+        
     with col4:
-        st.metric(
-            "📱 WhatsApp", 
-            canais_stats.get('whatsapp', 0), 
-            help="Conversas originadas via WhatsApp"
+        delta_satisfacao = "↗️ Alta" if satisfacao > 3.5 else "↘️ Baixa"
+        create_metric_card(
+            "Satisfação", 
+            f"{satisfacao:.1f}/5", 
+            delta=delta_satisfacao,
+            help_text="Nota média de satisfação"
         )
-        st.metric(
-            "💻 Dashboard", 
-            canais_stats.get('dashboard', 0), 
-            help="Conversas originadas via Dashboard"
+    
+    # Segunda linha - KPIs de IA
+    col5, col6, col7, col8 = st.columns(4)
+    
+    with col5:
+        create_metric_card(
+            "Sentimento +", 
+            f"{sentimento_positivo}", 
+            icon="😊",
+            help_text="Conversas com sentimento positivo"
+        )
+        
+    with col6:
+        create_metric_card(
+            "Menções Produto", 
+            f"{mencoes_produto}", 
+            icon="🛍️",
+            help_text="Conversas que mencionam produtos"
+        )
+        
+    with col7:
+        create_metric_card(
+            "Valor Médio", 
+            f"R$ {valor_medio:,.0f}", 
+            icon="💰",
+            help_text="Valor médio mencionado"
+        )
+        
+    with col8:
+        escalacoes = df.get('needs_human', pd.Series([False])).sum()
+        create_metric_card(
+            "Escalações", 
+            f"{escalacoes}", 
+            icon="🆘",
+            help_text="Conversas escaladas para humano"
         )
 
-def create_premium_status_chart(df):
-    """Gráfico de distribuição por status - DESIGN PREMIUM"""
-    if df.empty:
-        st.info("📊 Aguardando dados para gráfico de status")
+def create_status_donut_chart(df):
+    """Gráfico donut de status elegante"""
+    if df.empty or 'status' not in df.columns:
         return
     
-    try:
-        status_column = safe_get_column(df, 'status', 'UNKNOWN')
-        status_count = status_column.value_counts()
-        
-        if status_count.empty:
-            st.warning("📊 Nenhum status encontrado nos dados")
-            return
-        
-        # Cores premium para status
-        cores_status = {
-            'RESOLVED': '#4caf50',
-            'UNRESOLVED': '#ff9800', 
-            'HUMAN_REQUESTED': '#f44336',
-            'UNKNOWN': '#9e9e9e'
-        }
-        
-        colors = [cores_status.get(status, '#9e9e9e') for status in status_count.index]
-        
-        # Criar gráfico com estilo premium
-        fig = px.pie(
-            values=status_count.values,
-            names=status_count.index,
-            title="📊 Distribuição por Status de Atendimento",
-            color_discrete_sequence=colors,
-            hole=0.4  # Donut chart para visual mais moderno
+    status_count = df['status'].value_counts()
+    
+    # Cores elegantes
+    colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444']
+    
+    fig = go.Figure(data=[go.Pie(
+        labels=status_count.index,
+        values=status_count.values,
+        hole=0.6,
+        marker_colors=colors,
+        textinfo='label+percent',
+        textposition='auto',
+        hovertemplate='<b>%{label}</b><br>Quantidade: %{value}<br>Percentual: %{percent}<extra></extra>'
+    )])
+    
+    # Personalização elegante
+    fig.update_layout(
+        title={
+            'text': "📊 Distribuição por Status",
+            'x': 0.5,
+            'font': {'size': 18, 'color': '#ffffff' if st.session_state.dark_mode else '#1e293b'}
+        },
+        font=dict(
+            color='#ffffff' if st.session_state.dark_mode else '#1e293b',
+            size=12
+        ),
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)',
+        height=400,
+        showlegend=True,
+        legend=dict(
+            orientation="v",
+            yanchor="middle",
+            y=0.5,
+            xanchor="left",
+            x=1.05
         )
-        
-        # Personalização premium
-        fig.update_traces(
-            textposition='inside', 
-            textinfo='percent+label',
-            textfont_size=12,
-            marker=dict(line=dict(color='rgba(255,255,255,0.2)', width=2))
-        )
-        
-        fig.update_layout(
-            font=dict(color='#e3f2fd', size=12),
-            paper_bgcolor='rgba(0,0,0,0)',
-            plot_bgcolor='rgba(0,0,0,0)',
-            title_font_size=16,
-            title_font_color='#90caf9',
-            height=400,
-            showlegend=True,
-            legend=dict(
-                bgcolor='rgba(255,255,255,0.05)',
-                bordercolor='rgba(100,181,246,0.2)',
-                borderwidth=1
-            )
-        )
-        
-        st.plotly_chart(fig, use_container_width=True)
-        
-    except Exception as e:
-        st.error(f"❌ Erro ao criar gráfico de status: {e}")
+    )
+    
+    # Adicionar anotação central
+    fig.add_annotation(
+        text=f"<b>{len(df)}</b><br>Total",
+        x=0.5, y=0.5,
+        font_size=16,
+        showarrow=False
+    )
+    
+    st.plotly_chart(fig, use_container_width=True)
 
-def create_premium_channel_analysis(df):
-    """Análise por canal - DESIGN PREMIUM"""
-    if df.empty:
-        st.info("📊 Aguardando dados para análise de canais")
+def create_channel_performance_chart(df):
+    """Gráfico de performance por canal"""
+    if df.empty or 'channel' not in df.columns:
         return
     
-    try:
-        # Criar dados seguros
-        safe_data = {}
-        safe_data['channel'] = safe_get_column(df, 'channel', 'unknown')
-        safe_data['conversation_id'] = safe_get_column(df, 'conversation_id', 'conv_unknown')
-        safe_data['is_resolved'] = safe_get_column(df, 'is_resolved', False)
-        safe_data['satisfaction_score'] = safe_get_column(df, 'satisfaction_score', 0)
-        safe_data['first_response_time'] = safe_get_column(df, 'first_response_time', 0)
-        
-        safe_df = pd.DataFrame(safe_data)
-        
-        canal_stats = safe_df.groupby('channel').agg({
-            'conversation_id': 'count',
-            'is_resolved': 'sum',
-            'satisfaction_score': 'mean',
-            'first_response_time': 'mean'
-        }).round(2)
-        
-        canal_stats.columns = ['Total', 'Resolvidos', 'Satisfação_Média', 'Tempo_Resposta_Médio']
-        canal_stats['Taxa_Resolução'] = (canal_stats['Resolvidos'] / canal_stats['Total'] * 100).round(1)
-        canal_stats = canal_stats.reset_index()
-        
-        if not canal_stats.empty:
-            # Gráfico premium
-            fig = px.bar(
-                canal_stats,
-                x='channel',
-                y=['Total', 'Resolvidos'],
-                title="📈 Performance por Canal de Atendimento",
-                barmode='group',
-                color_discrete_sequence=['#64b5f6', '#4caf50'],
-                text_auto=True
-            )
-            
-            # Personalização premium
-            fig.update_layout(
-                font=dict(color='#e3f2fd', size=12),
-                paper_bgcolor='rgba(0,0,0,0)',
-                plot_bgcolor='rgba(0,0,0,0)',
-                title_font_size=16,
-                title_font_color='#90caf9',
-                height=400,
-                xaxis=dict(
-                    gridcolor='rgba(100,181,246,0.1)',
-                    title_font_color='#90caf9'
-                ),
-                yaxis=dict(
-                    gridcolor='rgba(100,181,246,0.1)',
-                    title_font_color='#90caf9'
-                ),
-                legend=dict(
-                    bgcolor='rgba(255,255,255,0.05)',
-                    bordercolor='rgba(100,181,246,0.2)',
-                    borderwidth=1
-                )
-            )
-            
-            fig.update_traces(
-                textfont_color='white',
-                marker_line_color='rgba(255,255,255,0.2)',
-                marker_line_width=1
-            )
-            
-            st.plotly_chart(fig, use_container_width=True)
-            
-            # Tabela premium
-            st.markdown("### 📋 Detalhes por Canal")
-            canal_stats['🎯 Performance'] = canal_stats['Taxa_Resolução'].apply(
-                lambda x: '🔥 Excelente' if x >= 90 else '👍 Boa' if x >= 70 else '⚠️ Regular' if x >= 50 else '🔴 Baixa'
-            )
-            st.dataframe(canal_stats, use_container_width=True)
-        else:
-            st.warning("📊 Sem dados de canal para exibir")
-            
-    except Exception as e:
-        st.error(f"❌ Erro na análise de canais: {e}")
+    # Calcular métricas por canal
+    channel_stats = df.groupby('channel').agg({
+        'conversation_id': 'count',
+        'is_resolved': 'sum',
+        'satisfaction_score': 'mean',
+        'first_response_time': 'mean'
+    }).round(2)
+    
+    channel_stats['taxa_resolucao'] = (channel_stats['is_resolved'] / channel_stats['conversation_id'] * 100).round(1)
+    channel_stats = channel_stats.reset_index()
+    
+    # Gráfico de barras elegante
+    fig = go.Figure()
+    
+    # Barras para total
+    fig.add_trace(go.Bar(
+        x=channel_stats['channel'],
+        y=channel_stats['conversation_id'],
+        name='Total Conversas',
+        marker_color='#3b82f6',
+        text=channel_stats['conversation_id'],
+        textposition='auto'
+    ))
+    
+    # Barras para resolvidas
+    fig.add_trace(go.Bar(
+        x=channel_stats['channel'],
+        y=channel_stats['is_resolved'],
+        name='Resolvidas',
+        marker_color='#10b981',
+        text=channel_stats['is_resolved'],
+        textposition='auto'
+    ))
+    
+    fig.update_layout(
+        title={
+            'text': "📈 Performance por Canal",
+            'x': 0.5,
+            'font': {'size': 18, 'color': '#ffffff' if st.session_state.dark_mode else '#1e293b'}
+        },
+        barmode='group',
+        font=dict(
+            color='#ffffff' if st.session_state.dark_mode else '#1e293b',
+            size=12
+        ),
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)',
+        height=400,
+        xaxis=dict(
+            title="Canal",
+            gridcolor='rgba(255,255,255,0.1)' if st.session_state.dark_mode else 'rgba(0,0,0,0.1)'
+        ),
+        yaxis=dict(
+            title="Quantidade",
+            gridcolor='rgba(255,255,255,0.1)' if st.session_state.dark_mode else 'rgba(0,0,0,0.1)'
+        ),
+        legend=dict(
+            bgcolor='rgba(255,255,255,0.05)' if st.session_state.dark_mode else 'rgba(0,0,0,0.05)'
+        )
+    )
+    
+    st.plotly_chart(fig, use_container_width=True)
+    
+    # Tabela complementar
+    st.dataframe(channel_stats.rename(columns={
+        'channel': 'Canal',
+        'conversation_id': 'Total',
+        'is_resolved': 'Resolvidas',
+        'satisfaction_score': 'Satisfação Média',
+        'first_response_time': 'Tempo Resposta (s)',
+        'taxa_resolucao': 'Taxa Resolução (%)'
+    }), use_container_width=True)
+
+def create_sentiment_analysis(df):
+    """Análise de sentimento com dados ricos"""
+    if df.empty or 'context_sentiment' not in df.columns:
+        st.info("📊 Análise de sentimento não disponível nos dados atuais")
+        return
+    
+    sentiment_count = df['sentiment_pt'].value_counts()
+    
+    # Gráfico de pizza para sentimento
+    colors = {'Positivo': '#10b981', 'Neutro': '#6b7280', 'Negativo': '#ef4444'}
+    
+    fig = go.Figure(data=[go.Pie(
+        labels=sentiment_count.index,
+        values=sentiment_count.values,
+        marker_colors=[colors.get(label, '#6b7280') for label in sentiment_count.index],
+        textinfo='label+percent+value',
+        hovertemplate='<b>%{label}</b><br>Quantidade: %{value}<br>Percentual: %{percent}<extra></extra>'
+    )])
+    
+    fig.update_layout(
+        title={
+            'text': "🧠 Análise de Sentimento (IA)",
+            'x': 0.5,
+            'font': {'size': 18, 'color': '#ffffff' if st.session_state.dark_mode else '#1e293b'}
+        },
+        font=dict(
+            color='#ffffff' if st.session_state.dark_mode else '#1e293b'
+        ),
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)',
+        height=400
+    )
+    
+    st.plotly_chart(fig, use_container_width=True)
+
+def create_product_mentions_chart(df):
+    """Gráfico de menções de produto"""
+    if df.empty or 'mentions_product' not in df.columns:
+        return
+    
+    # Calcular estatísticas de menções
+    mentions_stats = {
+        'Com Menção Produto': df['mentions_product'].sum(),
+        'Sem Menção Produto': (~df['mentions_product']).sum(),
+        'Com Menção Preço': df.get('mentions_price', pd.Series([False])).sum(),
+        'Sem Menção Preço': (~df.get('mentions_price', pd.Series([False]))).sum()
+    }
+    
+    # Gráfico de barras horizontais
+    fig = go.Figure()
+    
+    categories = ['Menção Produto', 'Menção Preço']
+    with_mention = [mentions_stats['Com Menção Produto'], mentions_stats['Com Menção Preço']]
+    without_mention = [mentions_stats['Sem Menção Produto'], mentions_stats['Sem Menção Preço']]
+    
+    fig.add_trace(go.Bar(
+        y=categories,
+        x=with_mention,
+        name='Com Menção',
+        orientation='h',
+        marker_color='#3b82f6'
+    ))
+    
+    fig.add_trace(go.Bar(
+        y=categories,
+        x=without_mention,
+        name='Sem Menção',
+        orientation='h',
+        marker_color='#6b7280'
+    ))
+    
+    fig.update_layout(
+        title={
+            'text': "🛍️ Análise de Menções (IA)",
+            'x': 0.5,
+            'font': {'size': 18, 'color': '#ffffff' if st.session_state.dark_mode else '#1e293b'}
+        },
+        barmode='stack',
+        font=dict(
+            color='#ffffff' if st.session_state.dark_mode else '#1e293b'
+        ),
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)',
+        height=300
+    )
+    
+    st.plotly_chart(fig, use_container_width=True)
 
 def main():
-    """Função principal do dashboard premium"""
+    """Função principal do dashboard elegante"""
     
-    # Aplicar estilo premium
-    apply_premium_styling()
+    # Aplicar estilo elegante
+    apply_elegant_styling()
     
-    # Header premium com branding Reach IA
+    # Toggle de tema no canto superior direito
+    if st.button("🌓", key="theme_toggle", help="Alternar tema claro/escuro"):
+        toggle_theme()
+        st.rerun()
+    
+    # Header elegante
     st.markdown("""
-    <h1>🚀 Dashboard Reach IA</h1>
-    <div class="subtitle">
-        Análise Inteligente de Conversas | Otimização de Atendimento com IA
+    <div class="main-header">
+        <div class="main-title">🚀 Dashboard Reach IA</div>
+        <div class="main-subtitle">Análise Inteligente de Conversas | Sistema Premium de Métricas com IA</div>
     </div>
     """, unsafe_allow_html=True)
     
-    # Sidebar premium
+    # Sidebar elegante
     with st.sidebar:
         st.markdown("### 🎛️ Centro de Controle")
+        st.markdown("---")
         
-        # Status de conexão premium
-        st.markdown("#### 🔍 Status do Sistema")
-        
+        # Status de conexão
         config_ok = True
         if 'GOOGLE_CREDENTIALS' not in st.secrets:
-            st.error("🔐 Google Credentials")
+            st.error("🔐 Google não configurado")
             config_ok = False
         else:
-            st.success("🔐 Google Credentials")
-        
-        if 'chatvolt_api_key' not in st.secrets:
-            st.warning("🔑 API Chatvolt")
-        else:
-            st.success("🔑 API Chatvolt")
+            st.success("🔐 Google Sheets conectado")
         
         st.markdown("---")
         
-        # Controles premium
+        # Fonte de dados
         data_source = st.radio(
             "📊 Fonte de Dados:",
-            ["Google Sheets", "Dados Demonstração"],
-            help="Escolha a fonte dos dados para análise"
+            ["📋 Planilha Completa", "🧪 Demonstração"],
+            help="Escolha entre dados reais ou demonstração"
         )
         
         st.markdown("---")
         
-        auto_refresh = st.checkbox("🔄 Auto-refresh (30s)", False, help="Atualização automática dos dados")
+        # Filtros (implementar na próxima iteração)
+        st.markdown("### 🔍 Filtros")
+        st.info("🔧 Filtros avançados em desenvolvimento...")
         
+        st.markdown("---")
+        
+        # Controles
+        if st.button("🔄 Atualizar Dados", use_container_width=True):
+            st.cache_data.clear()
+            st.rerun()
+        
+        auto_refresh = st.checkbox("🔄 Auto-refresh (30s)", False)
         if auto_refresh:
             time.sleep(30)
             st.rerun()
-        
-        if st.button("🔄 Atualizar Agora", help="Atualizar dados manualmente"):
-            st.cache_data.clear()
-            st.rerun()
     
-    # Carregamento de dados com spinner premium
+    # Carregamento de dados
     with st.spinner("🚀 Carregando dados do Reach IA..."):
-        if data_source == "Google Sheets" and config_ok:
-            df = get_data_from_sheets()
+        if data_source == "📋 Planilha Completa" and config_ok:
+            conversas_df, contatos_df = get_rich_data_from_sheets()
+            df = process_rich_data(conversas_df, contatos_df)
         else:
-            # Dados de demonstração
-            st.info("🔧 **Modo Demonstração** - Dados simulados para teste")
+            # Dados de demonstração mais ricos
+            st.info("🧪 **Modo Demonstração** - Dados simulados com funcionalidades de IA")
             mock_data = {
-                'conversation_id': ['conv_001', 'conv_002', 'conv_003', 'conv_004', 'conv_005'],
-                'created_at': [datetime.now() - timedelta(hours=i) for i in range(5)],
-                'status': ['RESOLVED', 'UNRESOLVED', 'RESOLVED', 'HUMAN_REQUESTED', 'RESOLVED'],
-                'priority': ['HIGH', 'MEDIUM', 'LOW', 'HIGH', 'MEDIUM'],
-                'channel': ['whatsapp', 'dashboard', 'whatsapp', 'api', 'whatsapp'],
-                'frustration_level': [2, 3, 1, 4, 2],
-                'first_response_time': [30, 45, 25, 90, 35],
-                'satisfaction_score': [4, 2, 5, 3, 4],
-                'is_resolved': [True, False, True, False, True],
-                'needs_human': [False, False, False, True, False]
+                'conversation_id': [f'conv_{i:03d}' for i in range(1, 11)],
+                'created_at': [datetime.now() - timedelta(hours=i) for i in range(10)],
+                'status': ['RESOLVED', 'UNRESOLVED', 'RESOLVED', 'HUMAN_REQUESTED', 'RESOLVED'] * 2,
+                'channel': ['whatsapp', 'dashboard', 'whatsapp', 'zapi', 'whatsapp'] * 2,
+                'frustration_level': [1, 3, 2, 4, 1, 2, 3, 4, 2, 1],
+                'first_response_time': [25, 45, 30, 90, 20, 35, 60, 120, 40, 25],
+                'satisfaction_score': [5, 2, 4, 3, 5, 4, 2, 1, 4, 5],
+                'context_sentiment': ['positive', 'negative', 'positive', 'negative', 'positive'] * 2,
+                'mentions_product': [True, False, True, True, False, True, True, False, True, False],
+                'mentions_price': [True, True, False, True, False, False, True, True, False, True],
+                'var_preco': [150, 0, 200, 350, 0, 180, 250, 400, 0, 120],
+                'quantidade_pneus': [4, 0, 2, 4, 0, 2, 4, 2, 0, 4],
+                'is_resolved': [True, False, True, False, True, True, False, False, True, True]
             }
             df = pd.DataFrame(mock_data)
-            df = process_chatvolt_data(df)
+            df = process_rich_data(pd.DataFrame(), df)  # Simular processamento
     
-    # Verificar se temos dados
     if df.empty:
-        st.error("❌ Nenhum dado disponível para análise")
-        st.info("🔧 **Soluções sugeridas:**")
-        st.info("• Verifique se a service account tem acesso à planilha")
-        st.info("• Configure as credenciais no Streamlit Secrets") 
-        st.info("• Use o modo demonstração para testar")
+        st.error("❌ Nenhum dado disponível")
+        st.info("💡 **Soluções:**")
+        st.info("• Verificar acesso à planilha Google Sheets")
+        st.info("• Testar com dados de demonstração")
         st.stop()
     
-    # Status de carregamento premium
-    st.success(f"✅ **Sistema Reach IA ativo** - {len(df)} conversas analisadas")
+    # Status de sucesso
+    st.success(f"✅ **Sistema Reach IA operacional** - {len(df)} conversas analisadas")
     
-    # Cards de métricas premium
-    create_premium_metrics_cards(df)
+    # KPIs principais
+    create_elegant_kpi_section(df)
     
-    # Separador visual
     st.markdown("---")
     
-    # Layout em abas premium
-    tab1, tab2, tab3 = st.tabs([
-        "📊 **Visão Geral**", 
-        "📈 **Análise Temporal**", 
-        "📋 **Dados Detalhados**"
+    # Layout principal em abas elegantes
+    tab1, tab2, tab3, tab4 = st.tabs([
+        "📊 **Visão Geral**",
+        "🧠 **Análise com IA**", 
+        "💼 **Dados Comerciais**",
+        "📋 **Detalhes**"
     ])
     
     with tab1:
         col1, col2 = st.columns(2)
+        
         with col1:
-            create_premium_status_chart(df)
+            create_status_donut_chart(df)
+            
         with col2:
-            create_premium_channel_analysis(df)
+            create_channel_performance_chart(df)
     
     with tab2:
-        st.info("📈 Análise temporal será implementada na próxima fase")
-        st.markdown("**Em desenvolvimento:**")
-        st.markdown("• Evolução temporal das conversas")
-        st.markdown("• Mapa de calor por horário") 
-        st.markdown("• Tendências e padrões")
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            create_sentiment_analysis(df)
+            
+        with col2:
+            create_product_mentions_chart(df)
     
     with tab3:
-        st.markdown("### 📋 Dados Detalhados das Conversas")
+        st.markdown("### 💼 Análise Comercial")
         
-        if not df.empty:
-            colunas_exibir = [
-                'conversation_id', 'created_at', 'status', 'channel', 'priority',
-                'frustration_level', 'first_response_time', 'satisfaction_score'
-            ]
+        # Métricas comerciais
+        if 'var_preco' in df.columns and df['var_preco'].sum() > 0:
+            col1, col2, col3, col4 = st.columns(4)
             
-            colunas_disponiveis = [col for col in colunas_exibir if col in df.columns]
-            df_display = df[colunas_disponiveis].copy()
+            with col1:
+                valor_total = df['var_preco'].sum()
+                st.metric("💰 Valor Total", f"R$ {valor_total:,.0f}")
+                
+            with col2:
+                conversas_com_preco = (df['var_preco'] > 0).sum()
+                st.metric("💵 Com Preço", f"{conversas_com_preco}")
+                
+            with col3:
+                pneus_total = df.get('quantidade_pneus', pd.Series([0])).sum()
+                st.metric("🛞 Total Pneus", f"{pneus_total:.0f}")
+                
+            with col4:
+                ticket_medio = df[df['var_preco'] > 0]['var_preco'].mean()
+                st.metric("🎯 Ticket Médio", f"R$ {ticket_medio:,.0f}")
+        else:
+            st.info("📊 Dados comerciais não disponíveis na fonte atual")
+    
+    with tab4:
+        st.markdown("### 📋 Dados Detalhados")
+        
+        # Mostrar dados com colunas principais
+        display_columns = [
+            'conversation_id', 'created_at', 'status', 'channel', 
+            'satisfaction_score', 'context_sentiment', 'var_preco'
+        ]
+        
+        available_columns = [col for col in display_columns if col in df.columns]
+        
+        if available_columns:
+            display_df = df[available_columns].copy()
             
-            # Formatar datas
-            if 'created_at' in df_display.columns:
-                df_display['created_at'] = df_display['created_at'].dt.strftime('%d/%m/%Y %H:%M')
+            # Formatar dados para exibição
+            if 'created_at' in display_df.columns:
+                display_df['created_at'] = display_df['created_at'].dt.strftime('%d/%m/%Y %H:%M')
             
-            st.info(f"📊 Exibindo **{len(df_display)}** conversas")
-            st.dataframe(df_display, use_container_width=True, height=400)
+            if 'var_preco' in display_df.columns:
+                display_df['var_preco'] = display_df['var_preco'].apply(lambda x: f"R$ {x:,.0f}" if x > 0 else "-")
             
-            # Download premium
-            if st.button("📥 Preparar Download CSV"):
-                csv = df_display.to_csv(index=False)
+            st.info(f"📊 Exibindo **{len(display_df)}** conversas")
+            st.dataframe(display_df, use_container_width=True, height=400)
+            
+            # Download
+            if st.button("📥 Preparar Download"):
+                csv = display_df.to_csv(index=False)
                 st.download_button(
-                    label="📥 Baixar Dados CSV",
-                    data=csv,
-                    file_name=f'reach_ia_conversas_{datetime.now().strftime("%Y%m%d_%H%M")}.csv',
-                    mime='text/csv'
+                    "📥 Baixar Dados CSV",
+                    csv,
+                    f"reach_ia_dados_{datetime.now().strftime('%Y%m%d_%H%M')}.csv",
+                    "text/csv"
                 )
         else:
-            st.warning("Nenhum dado disponível para exibição")
+            st.warning("Colunas para exibição não encontradas")
     
-    # Footer premium
-    st.markdown("""
-    <div class="footer">
-        <strong>🚀 Dashboard Reach IA Premium</strong> | 
-        Última atualização: """ + f"""{datetime.now(pytz.timezone('America/Sao_Paulo')).strftime('%d/%m/%Y %H:%M:%S')} | 
-        Conversas analisadas: {len(df)} | 
-        Powered by IA
-    </div>
-    """, unsafe_allow_html=True)
+    # Footer elegante
+    st.markdown("---")
+    st.markdown(
+        f"""
+        <div style='text-align: center; color: {"#94a3b8" if st.session_state.dark_mode else "#64748b"}; padding: 1rem;'>
+            <strong>🚀 Dashboard Reach IA</strong> | 
+            Última atualização: {datetime.now(pytz.timezone('America/Sao_Paulo')).strftime('%d/%m/%Y %H:%M')} | 
+            Registros: {len(df)} | 
+            Tema: {"Escuro" if st.session_state.dark_mode else "Claro"} | 
+            <strong>Powered by IA</strong>
+        </div>
+        """, 
+        unsafe_allow_html=True
+    )
 
 if __name__ == "__main__":
     main()
