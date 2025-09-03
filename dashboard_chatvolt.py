@@ -599,15 +599,18 @@ def main():
     
     # Filtro de período
     if 'created_at' in df.columns and not df['created_at'].isna().all():
-        data_min = df['created_at'].min().date()
-        data_max = df['created_at'].max().date()
-        
-        periodo = st.sidebar.date_input(
-            "Período:",
-            value=(data_max - timedelta(days=7), data_max),
-            min_value=data_min,
-            max_value=data_max
-        )
+    data_min = df['created_at'].min().date()
+    data_max = df['created_at'].max().date()
+    
+    # Calcular valor padrão do período (máximo 7 dias, mínimo data_min)
+    periodo_inicio_padrao = max(data_min, data_max - timedelta(days=7))
+    
+    periodo = st.sidebar.date_input(
+        "Período:",
+        value=(periodo_inicio_padrao, data_max),  # ✅ CORRIGIDO
+        min_value=data_min,
+        max_value=data_max
+    )
         
         if len(periodo) == 2:
             mask = (df['created_at'].dt.date >= periodo[0]) & (df['created_at'].dt.date <= periodo[1])
