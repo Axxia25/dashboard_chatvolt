@@ -20,7 +20,7 @@ import numpy as np
 
 # Configuração da página
 st.set_page_config(
-    page_title="Dashboard Reach Analytics",
+    page_title="Dashboard Chatvolt Analytics",
     page_icon="💬",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -33,8 +33,8 @@ SCOPES = [
     'https://www.googleapis.com/auth/drive'
 ]
 
-# ID da planilha Google Sheets (substitua pelo seu)
-PLANILHA_ID = "YOUR_GOOGLE_SHEETS_ID"
+# ID da planilha Google Sheets (seu ID correto)
+PLANILHA_ID = "1Ji8hgGiQanGKMqblxRzkA_E_sLoI6AnpapmU72nXHsA"
 
 class ChatvoltDataCollector:
     """Classe para coleta de dados da API Chatvolt"""
