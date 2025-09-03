@@ -598,7 +598,7 @@ def main():
     st.sidebar.subheader("🔍 Filtros")
     
     # Filtro de período
-        if 'created_at' in df.columns and not df['created_at'].isna().all():
+    if 'created_at' in df.columns and not df['created_at'].isna().all():
         data_min = df['created_at'].min().date()
         data_max = df['created_at'].max().date()
     
@@ -612,7 +612,7 @@ def main():
         max_value=data_max
     )
         
-        if len(periodo) == 2:
+    if len(periodo) == 2:
             mask = (df['created_at'].dt.date >= periodo[0]) & (df['created_at'].dt.date <= periodo[1])
             df = df[mask]
     
