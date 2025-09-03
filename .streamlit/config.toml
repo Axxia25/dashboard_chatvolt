@@ -1,0 +1,22 @@
+[theme]
+# Tema personalizado para o dashboard Chatvolt
+primaryColor = "#3498db"
+backgroundColor = "#ffffff"
+secondaryBackgroundColor = "#f0f2f6"
+textColor = "#262730"
+
+[server]
+# Configurações do servidor
+headless = true
+port = 8501
+enableCORS = false
+enableXsrfProtection = false
+
+[browser]
+# Configurações do browser
+gatherUsageStats = false
+
+[global]
+# Configurações globais
+developmentMode = false
+showWarningOnDirectExecution = false
