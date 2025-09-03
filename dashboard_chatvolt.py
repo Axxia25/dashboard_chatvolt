@@ -20,7 +20,7 @@ import numpy as np
 
 # Configuração da página
 st.set_page_config(
-    page_title="Dashboard Chatvolt Analytics",
+    page_title="Dashboard Reach Analytics",
     page_icon="💬",
     layout="wide",
     initial_sidebar_state="expanded"
