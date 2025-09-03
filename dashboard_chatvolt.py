@@ -1,7 +1,7 @@
 """
-DASHBOARD CHATVOLT - MÉTRICAS DE ATENDIMENTO
-Sistema completo de análise de conversas e performance de atendimento
-Deploy: Streamlit Cloud
+DASHBOARD REACH IA - ANÁLISE INTELIGENTE DE CONVERSAS
+Sistema avançado de métricas com IA para otimização de atendimento
+Deploy: Streamlit Cloud - Versão Premium Design
 """
 
 import streamlit as st
@@ -18,10 +18,10 @@ from datetime import datetime, timedelta
 import pytz
 import numpy as np
 
-# Configuração da página
+# Configuração da página com tema premium
 st.set_page_config(
-    page_title="Dashboard Chatvolt Analytics",
-    page_icon="💬",
+    page_title="Dashboard Reach IA",
+    page_icon="🚀",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -33,8 +33,327 @@ SCOPES = [
     'https://www.googleapis.com/auth/drive'
 ]
 
-# ID da planilha Google Sheets (seu ID correto)
+# ID da planilha Google Sheets
 PLANILHA_ID = "1Ji8hgGiQanGKMqblxRzkA_E_sLoI6AnpapmU72nXHsA"
+
+def apply_premium_styling():
+    """Aplica estilo premium com tema azul escuro e degradê"""
+    st.markdown("""
+    <style>
+    /* ============= TEMA PRINCIPAL REACH IA ============= */
+    
+    /* Background principal com degradê azul escuro */
+    .stApp {
+        background: linear-gradient(135deg, #0f1419 0%, #1a2332 25%, #2d3748 50%, #1a2332 75%, #0f1419 100%);
+        background-attachment: fixed;
+    }
+    
+    /* Container principal */
+    .main .block-container {
+        background: rgba(255, 255, 255, 0.02);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 2rem;
+        margin-top: 1rem;
+    }
+    
+    /* ============= HEADER REACH IA ============= */
+    
+    /* Título principal */
+    h1 {
+        background: linear-gradient(135deg, #64b5f6 0%, #1e88e5 50%, #0d47a1 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-weight: 800;
+        font-size: 3rem !important;
+        text-align: center;
+        margin-bottom: 0.5rem;
+        text-shadow: 0 0 30px rgba(100, 181, 246, 0.3);
+    }
+    
+    /* Subtítulo */
+    .subtitle {
+        color: #90caf9;
+        text-align: center;
+        font-size: 1.2rem;
+        font-weight: 300;
+        margin-bottom: 2rem;
+        opacity: 0.9;
+    }
+    
+    /* ============= CARDS PREMIUM ============= */
+    
+    /* Métricas cards */
+    [data-testid="metric-container"] {
+        background: linear-gradient(135deg, rgba(100, 181, 246, 0.1) 0%, rgba(30, 136, 229, 0.1) 100%);
+        border: 1px solid rgba(100, 181, 246, 0.2);
+        padding: 1.5rem;
+        border-radius: 15px;
+        box-shadow: 0 8px 32px rgba(100, 181, 246, 0.1);
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+    }
+    
+    [data-testid="metric-container"]:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 45px rgba(100, 181, 246, 0.2);
+        border-color: rgba(100, 181, 246, 0.4);
+    }
+    
+    /* Valores das métricas */
+    [data-testid="metric-container"] > div > div > div > div {
+        color: #e3f2fd !important;
+        font-size: 2rem !important;
+        font-weight: 700 !important;
+        text-shadow: 0 0 10px rgba(227, 242, 253, 0.3);
+    }
+    
+    /* Labels das métricas */
+    [data-testid="metric-container"] > div > div > div:first-child {
+        color: #90caf9 !important;
+        font-size: 0.9rem !important;
+        font-weight: 500 !important;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    /* ============= SIDEBAR PREMIUM ============= */
+    
+    .css-1d391kg {
+        background: linear-gradient(180deg, rgba(15, 20, 25, 0.95) 0%, rgba(26, 35, 50, 0.95) 100%);
+        backdrop-filter: blur(15px);
+        border-right: 1px solid rgba(100, 181, 246, 0.2);
+    }
+    
+    /* Título da sidebar */
+    .css-1d391kg .css-10trblm {
+        color: #64b5f6;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+    
+    /* ============= COMPONENTES INTERATIVOS ============= */
+    
+    /* Botões */
+    .stButton > button {
+        background: linear-gradient(135deg, #1e88e5 0%, #1976d2 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(30, 136, 229, 0.3);
+    }
+    
+    .stButton > button:hover {
+        background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(30, 136, 229, 0.4);
+    }
+    
+    /* Selectbox */
+    .stSelectbox > div > div {
+        background: rgba(100, 181, 246, 0.1);
+        border: 1px solid rgba(100, 181, 246, 0.3);
+        border-radius: 8px;
+        color: #e3f2fd;
+    }
+    
+    /* Date input */
+    .stDateInput > div > div {
+        background: rgba(100, 181, 246, 0.1);
+        border: 1px solid rgba(100, 181, 246, 0.3);
+        border-radius: 8px;
+        color: #e3f2fd;
+    }
+    
+    /* Checkbox */
+    .stCheckbox > label {
+        color: #90caf9 !important;
+        font-weight: 500;
+    }
+    
+    /* Radio buttons */
+    .stRadio > label {
+        color: #90caf9 !important;
+        font-weight: 500;
+    }
+    
+    /* ============= ABAS ============= */
+    
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 8px;
+        background: rgba(100, 181, 246, 0.05);
+        border-radius: 10px;
+        padding: 0.5rem;
+    }
+    
+    .stTabs [data-baseweb="tab"] {
+        background: rgba(100, 181, 246, 0.1);
+        border-radius: 8px;
+        color: #90caf9;
+        font-weight: 600;
+        border: 1px solid rgba(100, 181, 246, 0.2);
+        transition: all 0.3s ease;
+    }
+    
+    .stTabs [data-baseweb="tab"][aria-selected="true"] {
+        background: linear-gradient(135deg, #1e88e5 0%, #1976d2 100%);
+        color: white;
+        border-color: #1976d2;
+        box-shadow: 0 4px 15px rgba(30, 136, 229, 0.3);
+    }
+    
+    /* ============= GRÁFICOS ============= */
+    
+    /* Container dos gráficos */
+    .js-plotly-plot {
+        background: rgba(255, 255, 255, 0.02) !important;
+        border-radius: 15px;
+        border: 1px solid rgba(100, 181, 246, 0.1);
+        backdrop-filter: blur(10px);
+    }
+    
+    /* ============= DATAFRAME ============= */
+    
+    .stDataFrame {
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 10px;
+        border: 1px solid rgba(100, 181, 246, 0.2);
+        overflow: hidden;
+    }
+    
+    .stDataFrame table {
+        background: transparent !important;
+        color: #e3f2fd !important;
+    }
+    
+    .stDataFrame th {
+        background: rgba(100, 181, 246, 0.2) !important;
+        color: #ffffff !important;
+        font-weight: 600;
+    }
+    
+    .stDataFrame td {
+        border-color: rgba(100, 181, 246, 0.1) !important;
+    }
+    
+    /* ============= ALERTS E MENSAGENS ============= */
+    
+    .stAlert {
+        background: rgba(100, 181, 246, 0.1);
+        border: 1px solid rgba(100, 181, 246, 0.3);
+        border-radius: 10px;
+        color: #e3f2fd;
+    }
+    
+    .stSuccess {
+        background: rgba(76, 175, 80, 0.1);
+        border: 1px solid rgba(76, 175, 80, 0.3);
+        color: #c8e6c9;
+    }
+    
+    .stError {
+        background: rgba(244, 67, 54, 0.1);
+        border: 1px solid rgba(244, 67, 54, 0.3);
+        color: #ffcdd2;
+    }
+    
+    .stWarning {
+        background: rgba(255, 152, 0, 0.1);
+        border: 1px solid rgba(255, 152, 0, 0.3);
+        color: #ffe0b2;
+    }
+    
+    /* ============= TEXTOS GERAIS ============= */
+    
+    .css-10trblm {
+        color: #e3f2fd;
+    }
+    
+    .markdown-text-container {
+        color: #b3e5fc;
+    }
+    
+    /* ============= FOOTER ============= */
+    
+    .footer {
+        background: linear-gradient(135deg, rgba(100, 181, 246, 0.1) 0%, rgba(30, 136, 229, 0.1) 100%);
+        border: 1px solid rgba(100, 181, 246, 0.2);
+        border-radius: 10px;
+        padding: 1rem;
+        margin-top: 2rem;
+        text-align: center;
+        color: #90caf9;
+        font-size: 0.9rem;
+    }
+    
+    /* ============= SPINNER LOADING ============= */
+    
+    .stSpinner {
+        color: #64b5f6 !important;
+    }
+    
+    /* ============= RESPONSIVIDADE ============= */
+    
+    @media (max-width: 768px) {
+        h1 {
+            font-size: 2rem !important;
+        }
+        
+        .main .block-container {
+            padding: 1rem;
+        }
+        
+        [data-testid="metric-container"] {
+            padding: 1rem;
+        }
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+def safe_get_column(df, column_name, default_value=None):
+    """Retorna coluna do DataFrame ou valor padrão se não existir"""
+    if column_name in df.columns:
+        return df[column_name]
+    else:
+        if default_value is None:
+            if df.empty:
+                return pd.Series(dtype='object')
+            return pd.Series([None] * len(df))
+        return pd.Series([default_value] * len(df))
+
+def ensure_required_columns(df):
+    """Garante que DataFrame tenha todas as colunas necessárias"""
+    required_columns = {
+        'conversation_id': '',
+        'created_at': pd.NaT,
+        'updated_at': pd.NaT,
+        'status': 'UNKNOWN',
+        'priority': 'MEDIUM',
+        'channel': 'unknown',
+        'visitor_id': '',
+        'agent_id': '',
+        'frustration_level': 0,
+        'first_response_time': 0,
+        'resolution_time': 0,
+        'message_count': 0,
+        'satisfaction_score': 0,
+        'resolved': False,
+        'escalated_to_human': False,
+        'contact_name': '',
+        'contact_email': ''
+    }
+    
+    for col, default_val in required_columns.items():
+        if col not in df.columns:
+            df[col] = default_val
+    
+    return df
 
 class ChatvoltDataCollector:
     """Classe para coleta de dados da API Chatvolt"""
@@ -46,77 +365,27 @@ class ChatvoltDataCollector:
             'Content-Type': 'application/json'
         }
         self.base_url = CHATVOLT_API_BASE
-    
-    def get_conversation(self, conversation_id):
-        """Busca dados completos de uma conversa"""
-        try:
-            response = requests.get(
-                f'{self.base_url}/conversation/{conversation_id}',
-                headers=self.headers,
-                timeout=30
-            )
-            response.raise_for_status()
-            return response.json()
-        except Exception as e:
-            st.error(f"Erro ao buscar conversa {conversation_id}: {e}")
-            return None
-    
-    def get_conversation_messages(self, conversation_id):
-        """Busca mensagens de uma conversa"""
-        try:
-            response = requests.get(
-                f'{self.base_url}/conversation/{conversation_id}/messages',
-                headers=self.headers,
-                timeout=30
-            )
-            response.raise_for_status()
-            return response.json()
-        except Exception as e:
-            st.error(f"Erro ao buscar mensagens: {e}")
-            return []
-    
-    def get_agent_data(self, agent_id):
-        """Busca dados do agente"""
-        try:
-            response = requests.get(
-                f'{self.base_url}/agents/{agent_id}',
-                headers=self.headers,
-                timeout=30
-            )
-            response.raise_for_status()
-            return response.json()
-        except Exception as e:
-            st.error(f"Erro ao buscar agente: {e}")
-            return None
-    
-    def set_conversation_variable(self, conversation_id, var_name, var_value):
-        """Define variável customizada para uma conversa"""
-        try:
-            response = requests.post(
-                f'{self.base_url}/variables',
-                headers=self.headers,
-                json={
-                    'conversationId': conversation_id,
-                    'varName': var_name[:20],  # Limitação da API
-                    'varValue': str(var_value)[:100]  # Limitação da API
-                },
-                timeout=30
-            )
-            response.raise_for_status()
-            return response.json()
-        except Exception as e:
-            st.error(f"Erro ao definir variável: {e}")
-            return None
 
 @st.cache_data(ttl=300)  # Cache por 5 minutos
 def get_data_from_sheets():
-    """Carrega dados das conversas da planilha Google - MÉTODO OTIMIZADO"""
+    """Carrega dados das conversas da planilha Google - VERSÃO PREMIUM"""
     try:
+        # Verificar se secrets existem
+        if 'GOOGLE_CREDENTIALS' not in st.secrets:
+            st.error("🔐 Credenciais do Google não configuradas")
+            return pd.DataFrame()
+        
         # Configurar credenciais
         creds_dict = dict(st.secrets['GOOGLE_CREDENTIALS'])
         creds = Credentials.from_service_account_info(creds_dict, scopes=SCOPES)
         client = gspread.authorize(creds)
-        sheet = client.open_by_key(PLANILHA_ID)
+        
+        # Conectar com a planilha
+        try:
+            sheet = client.open_by_key(PLANILHA_ID)
+        except Exception as e:
+            st.error(f"❌ Erro ao abrir planilha: {e}")
+            return pd.DataFrame()
         
         # Buscar aba de conversas
         worksheet_names = ['Conversas', 'Conversations', 'Atendimentos', 'Sheet1']
@@ -125,29 +394,38 @@ def get_data_from_sheets():
         for name in worksheet_names:
             try:
                 worksheet = sheet.worksheet(name)
+                st.success(f"✅ Conectado à aba: **{name}**")
                 break
             except:
                 continue
         
         if not worksheet:
-            st.error("Nenhuma aba encontrada na planilha")
+            st.error("❌ Nenhuma aba encontrada na planilha")
             return pd.DataFrame()
         
         # Coletar dados
-        all_values = worksheet.get_all_values()
+        try:
+            all_values = worksheet.get_all_values()
+        except Exception as e:
+            st.error(f"❌ Erro ao ler dados da planilha: {e}")
+            return pd.DataFrame()
         
-        if not all_values or len(all_values) < 2:
-            st.warning("Planilha encontrada, mas sem dados suficientes")
+        if not all_values:
+            st.warning("⚠️ Planilha completamente vazia")
+            return pd.DataFrame()
+        
+        if len(all_values) < 2:
+            st.warning("⚠️ Planilha só tem cabeçalhos, sem dados")
             return pd.DataFrame()
         
         headers = all_values[0]
         data_rows = all_values[1:]
         
-        # Filtrar linhas vazias
-        data_rows = [row for row in data_rows if any(cell.strip() for cell in row)]
+        # Filtrar linhas completamente vazias
+        data_rows = [row for row in data_rows if any(cell.strip() for cell in row if cell)]
         
         if not data_rows:
-            st.warning("Nenhuma linha de dados encontrada")
+            st.warning("⚠️ Nenhuma linha de dados encontrada")
             return pd.DataFrame()
         
         # Criar DataFrame
@@ -155,530 +433,503 @@ def get_data_from_sheets():
         processed_rows = []
         
         for row in data_rows:
+            # Garantir que a linha tenha o mesmo número de colunas
             while len(row) < max_cols:
                 row.append('')
-            row = row[:max_cols]
+            row = row[:max_cols]  # Truncar se tiver colunas extras
             processed_rows.append(row)
         
         df = pd.DataFrame(processed_rows, columns=headers)
         
-        # Processar campos específicos do Chatvolt
+        st.success(f"🚀 **{len(df)} registros** carregados com sucesso")
+        
+        # Processar dados
         return process_chatvolt_data(df)
         
     except Exception as e:
-        st.error(f"Erro ao carregar dados: {e}")
+        st.error(f"❌ Erro geral ao carregar dados: {e}")
         return pd.DataFrame()
 
 def process_chatvolt_data(df):
-    """Processa e limpa dados do Chatvolt"""
+    """Processa e limpa dados do Chatvolt - VERSÃO PREMIUM"""
     if df.empty:
         return df
     
-    # Mapeamento de colunas esperadas
-    expected_columns = [
-        'conversation_id', 'created_at', 'updated_at', 'status', 'priority',
-        'channel', 'visitor_id', 'agent_id', 'frustration_level',
-        'first_response_time', 'resolution_time', 'message_count',
-        'satisfaction_score', 'resolved', 'escalated_to_human',
-        'total_duration', 'response_time_avg', 'contact_email', 'contact_name'
-    ]
+    # Garantir colunas obrigatórias
+    df = ensure_required_columns(df)
     
-    # Adicionar colunas ausentes
-    for col in expected_columns:
-        if col not in df.columns:
-            df[col] = ''
-    
-    # Processar timestamps
+    # Processar timestamps de forma defensiva
     for time_col in ['created_at', 'updated_at']:
         if time_col in df.columns:
-            df[time_col] = pd.to_datetime(df[time_col], errors='coerce')
+            try:
+                # Tentar diferentes formatos de data
+                df[time_col] = pd.to_datetime(df[time_col], format='%d/%m/%Y %H:%M:%S', errors='coerce')
+                if df[time_col].isna().all():
+                    df[time_col] = pd.to_datetime(df[time_col], errors='coerce')
+                
+                # Se ainda estão NaT, usar data atual
+                if df[time_col].isna().all():
+                    df[time_col] = datetime.now()
+            except:
+                df[time_col] = datetime.now()
     
-    # Processar campos numéricos
+    # Processar campos numéricos de forma segura
     numeric_fields = ['frustration_level', 'first_response_time', 'resolution_time',
-                     'message_count', 'satisfaction_score', 'total_duration', 'response_time_avg']
+                     'message_count', 'satisfaction_score']
     
     for field in numeric_fields:
         if field in df.columns:
-            df[field] = pd.to_numeric(df[field], errors='coerce').fillna(0)
+            try:
+                df[field] = pd.to_numeric(df[field], errors='coerce').fillna(0)
+            except:
+                df[field] = 0
     
-    # Processar campos booleanos
+    # Processar campos booleanos de forma segura
     bool_fields = ['resolved', 'escalated_to_human']
     for field in bool_fields:
         if field in df.columns:
-            df[field] = df[field].astype(str).str.lower().isin(['true', 'sim', 'yes', '1'])
+            try:
+                df[field] = df[field].astype(str).str.lower().isin(['true', 'sim', 'yes', '1'])
+            except:
+                df[field] = False
     
     # Processar status e prioridade
-    if 'status' in df.columns:
-        df['status'] = df['status'].str.upper()
+    try:
+        df['status'] = df['status'].astype(str).str.upper()
         df['is_resolved'] = df['status'] == 'RESOLVED'
         df['needs_human'] = df['status'] == 'HUMAN_REQUESTED'
+    except:
+        df['is_resolved'] = False
+        df['needs_human'] = False
     
-    if 'priority' in df.columns:
-        df['priority'] = df['priority'].str.upper()
+    try:
+        df['priority'] = df['priority'].astype(str).str.upper()
+    except:
+        df['priority'] = 'MEDIUM'
     
-    # Calcular métricas derivadas
-    df['hour_of_day'] = df['created_at'].dt.hour
-    df['day_of_week'] = df['created_at'].dt.day_name()
-    df['date'] = df['created_at'].dt.date
+    # Calcular campos derivados de forma segura
+    try:
+        if 'created_at' in df.columns and not df['created_at'].isna().all():
+            df['hour_of_day'] = df['created_at'].dt.hour
+            df['day_of_week'] = df['created_at'].dt.day_name()
+            df['date'] = df['created_at'].dt.date
+        else:
+            df['hour_of_day'] = 12
+            df['day_of_week'] = 'Monday'
+            df['date'] = datetime.now().date()
+    except:
+        df['hour_of_day'] = 12
+        df['day_of_week'] = 'Monday'
+        df['date'] = datetime.now().date()
     
-    # Classificar nível de frustração
-    df['frustration_category'] = df['frustration_level'].apply(classify_frustration)
+    # Classificar frustração
+    try:
+        df['frustration_category'] = df['frustration_level'].apply(classify_frustration)
+    except:
+        df['frustration_category'] = 'Não Informado'
     
-    # Filtrar dados válidos
-    df = df[df['conversation_id'].notna() & (df['conversation_id'] != '')]
-    
-    st.info(f"✅ Dados processados: {len(df)} conversas carregadas")
+    # Filtrar registros válidos
+    try:
+        df = df[df['conversation_id'].notna() & (df['conversation_id'].astype(str) != '') & (df['conversation_id'].astype(str) != 'nan')]
+    except:
+        pass
     
     return df
 
 def classify_frustration(level):
-    """Classifica nível de frustração"""
-    if pd.isna(level) or level == 0:
-        return 'Não Informado'
-    elif level <= 2:
-        return 'Baixo'
-    elif level <= 4:
-        return 'Médio'
-    else:
-        return 'Alto'
-
-def collect_realtime_data():
-    """Coleta dados em tempo real da API Chatvolt"""
-    if 'chatvolt_api_key' not in st.secrets:
-        st.warning("⚠️ Chave da API Chatvolt não configurada")
-        return pd.DataFrame()
-    
+    """Classifica nível de frustração de forma segura"""
     try:
-        collector = ChatvoltDataCollector(st.secrets['chatvolt_api_key'])
-        
-        # Simular coleta de dados recentes (implementar polling real aqui)
-        # Por enquanto, vamos usar dados mock para demonstração
-        
-        mock_data = [
-            {
-                'conversation_id': f'conv_{i}',
-                'created_at': datetime.now() - timedelta(hours=i),
-                'status': ['RESOLVED', 'UNRESOLVED', 'HUMAN_REQUESTED'][i % 3],
-                'priority': ['HIGH', 'MEDIUM', 'LOW'][i % 3],
-                'channel': ['whatsapp', 'dashboard', 'api'][i % 3],
-                'frustration_level': (i % 5) + 1,
-                'first_response_time': (i % 30) + 10,
-                'satisfaction_score': (i % 5) + 1,
-                'message_count': (i % 20) + 1
-            }
-            for i in range(10)
-        ]
-        
-        return pd.DataFrame(mock_data)
-        
-    except Exception as e:
-        st.error(f"Erro na coleta em tempo real: {e}")
-        return pd.DataFrame()
+        if pd.isna(level) or level == 0:
+            return 'Não Informado'
+        elif level <= 2:
+            return 'Baixo'
+        elif level <= 4:
+            return 'Médio'
+        else:
+            return 'Alto'
+    except:
+        return 'Não Informado'
 
-def create_metrics_cards(df):
-    """Cria cards de métricas principais"""
+def create_premium_metrics_cards(df):
+    """Cria cards de métricas principais - DESIGN PREMIUM"""
     if df.empty:
-        st.warning("Nenhum dado encontrado")
+        st.warning("📊 Aguardando dados para análise...")
+        
+        # Mostrar métricas zeradas com visual premium
+        col1, col2, col3, col4 = st.columns(4)
+        with col1:
+            st.metric("💬 Total de Conversas", 0, help="Total de conversas no período selecionado")
+            st.metric("✅ Taxa de Resolução", "0%", help="Percentual de conversas resolvidas")
+        with col2:
+            st.metric("⚡ Tempo de Resposta", "0s", help="Tempo médio para primeira resposta")
+            st.metric("🏁 Tempo de Resolução", "0min", help="Tempo médio para resolver conversa")
+        with col3:
+            st.metric("😊 Satisfação Média", "0/5", help="Nota média de satisfação do cliente")
+            st.metric("🆘 Escalações", "0 (0%)", help="Conversas escaladas para humanos")
+        with col4:
+            st.metric("📱 WhatsApp", 0, help="Conversas via WhatsApp")
+            st.metric("💻 Dashboard", 0, help="Conversas via Dashboard")
         return
     
+    # Calcular métricas de forma segura
     total_conversas = len(df)
-    conversas_resolvidas = df['is_resolved'].sum() if 'is_resolved' in df.columns else 0
-    taxa_resolucao = (conversas_resolvidas / total_conversas * 100) if total_conversas > 0 else 0
     
-    # Calcular métricas de tempo
-    tempo_resposta_medio = df['first_response_time'].mean() if 'first_response_time' in df.columns else 0
-    tempo_resolucao_medio = df['resolution_time'].mean() if 'resolution_time' in df.columns else 0
+    try:
+        conversas_resolvidas = safe_get_column(df, 'is_resolved', False).sum()
+        taxa_resolucao = (conversas_resolvidas / total_conversas * 100) if total_conversas > 0 else 0
+    except:
+        conversas_resolvidas = 0
+        taxa_resolucao = 0
     
-    # Satisfação média
-    satisfacao_media = df['satisfaction_score'].mean() if 'satisfaction_score' in df.columns else 0
+    try:
+        tempo_resposta_medio = safe_get_column(df, 'first_response_time', 0).mean()
+        tempo_resolucao_medio = safe_get_column(df, 'resolution_time', 0).mean()
+    except:
+        tempo_resposta_medio = 0
+        tempo_resolucao_medio = 0
     
-    # Escalações para humano
-    escalacoes = df['needs_human'].sum() if 'needs_human' in df.columns else 0
-    taxa_escalacao = (escalacoes / total_conversas * 100) if total_conversas > 0 else 0
+    try:
+        satisfacao_media = safe_get_column(df, 'satisfaction_score', 0).mean()
+    except:
+        satisfacao_media = 0
     
-    # Conversas por canal
-    canais_stats = df['channel'].value_counts().to_dict() if 'channel' in df.columns else {}
+    try:
+        escalacoes = safe_get_column(df, 'needs_human', False).sum()
+        taxa_escalacao = (escalacoes / total_conversas * 100) if total_conversas > 0 else 0
+    except:
+        escalacoes = 0
+        taxa_escalacao = 0
     
-    # Exibir métricas
+    try:
+        canais_stats = safe_get_column(df, 'channel', 'unknown').value_counts().to_dict()
+    except:
+        canais_stats = {}
+    
+    # Exibir métricas com visual premium
     col1, col2, col3, col4 = st.columns(4)
     
     with col1:
-        st.metric("Total de Conversas", total_conversas)
-        st.metric("Taxa de Resolução", f"{taxa_resolucao:.1f}%")
+        st.metric(
+            "💬 Total de Conversas", 
+            f"{total_conversas:,}", 
+            help="Total de conversas no período selecionado"
+        )
+        delta_resolucao = "↗️" if taxa_resolucao > 70 else "↘️"
+        st.metric(
+            "✅ Taxa de Resolução", 
+            f"{taxa_resolucao:.1f}%", 
+            delta=delta_resolucao,
+            help="Percentual de conversas resolvidas com sucesso"
+        )
     
     with col2:
-        st.metric("Tempo Médio de Resposta", f"{tempo_resposta_medio:.1f}s")
-        st.metric("Tempo Médio de Resolução", f"{tempo_resolucao_medio:.1f}min")
+        delta_resposta = "↗️" if tempo_resposta_medio < 60 else "↘️"
+        st.metric(
+            "⚡ Tempo de Resposta", 
+            f"{tempo_resposta_medio:.1f}s", 
+            delta=delta_resposta,
+            help="Tempo médio para primeira resposta"
+        )
+        st.metric(
+            "🏁 Tempo de Resolução", 
+            f"{tempo_resolucao_medio:.1f}min", 
+            help="Tempo médio para resolver conversa"
+        )
     
     with col3:
-        st.metric("Satisfação Média", f"{satisfacao_media:.1f}/5")
-        st.metric("Escalações para Humano", f"{escalacoes} ({taxa_escalacao:.1f}%)")
+        delta_satisfacao = "↗️" if satisfacao_media > 3.5 else "↘️"
+        st.metric(
+            "😊 Satisfação Média", 
+            f"{satisfacao_media:.1f}/5", 
+            delta=delta_satisfacao,
+            help="Nota média de satisfação do cliente"
+        )
+        delta_escalacao = "↘️" if taxa_escalacao < 20 else "↗️"
+        st.metric(
+            "🆘 Escalações", 
+            f"{escalacoes} ({taxa_escalacao:.1f}%)", 
+            delta=delta_escalacao,
+            help="Conversas escaladas para atendimento humano"
+        )
     
     with col4:
-        st.metric("WhatsApp", canais_stats.get('whatsapp', 0))
-        st.metric("Dashboard", canais_stats.get('dashboard', 0))
+        st.metric(
+            "📱 WhatsApp", 
+            canais_stats.get('whatsapp', 0), 
+            help="Conversas originadas via WhatsApp"
+        )
+        st.metric(
+            "💻 Dashboard", 
+            canais_stats.get('dashboard', 0), 
+            help="Conversas originadas via Dashboard"
+        )
 
-def create_status_distribution_chart(df):
-    """Gráfico de distribuição por status"""
-    if df.empty or 'status' not in df.columns:
+def create_premium_status_chart(df):
+    """Gráfico de distribuição por status - DESIGN PREMIUM"""
+    if df.empty:
+        st.info("📊 Aguardando dados para gráfico de status")
         return
     
-    status_count = df['status'].value_counts()
-    
-    # Cores por status
-    cores_status = {
-        'RESOLVED': '#2ecc71',
-        'UNRESOLVED': '#f39c12', 
-        'HUMAN_REQUESTED': '#e74c3c'
-    }
-    
-    colors = [cores_status.get(status, '#95a5a6') for status in status_count.index]
-    
-    fig = px.pie(
-        values=status_count.values,
-        names=status_count.index,
-        title="Distribuição por Status de Atendimento",
-        color_discrete_sequence=colors
-    )
-    
-    fig.update_traces(textposition='inside', textinfo='percent+label')
-    fig.update_layout(height=400)
-    st.plotly_chart(fig, use_container_width=True)
-
-def create_channel_analysis(df):
-    """Análise por canal de origem"""
-    if df.empty or 'channel' not in df.columns:
-        return
-    
-    canal_stats = df.groupby('channel').agg({
-        'conversation_id': 'count',
-        'is_resolved': 'sum',
-        'satisfaction_score': 'mean',
-        'first_response_time': 'mean'
-    }).round(2)
-    
-    canal_stats.columns = ['Total', 'Resolvidos', 'Satisfação_Média', 'Tempo_Resposta_Médio']
-    canal_stats['Taxa_Resolução'] = (canal_stats['Resolvidos'] / canal_stats['Total'] * 100).round(1)
-    canal_stats = canal_stats.reset_index()
-    
-    fig = px.bar(
-        canal_stats,
-        x='channel',
-        y=['Total', 'Resolvidos'],
-        title="Performance por Canal de Atendimento",
-        barmode='group',
-        color_discrete_sequence=['#3498db', '#2ecc71'],
-        text_auto=True
-    )
-    
-    fig.update_layout(height=400)
-    st.plotly_chart(fig, use_container_width=True)
-    
-    # Tabela detalhada
-    st.subheader("Detalhes por Canal")
-    
-    # Adicionar performance
-    canal_stats['Performance'] = canal_stats['Taxa_Resolução'].apply(
-        lambda x: '🔥 Excelente' if x >= 90 else '👍 Boa' if x >= 70 else '⚠️ Regular' if x >= 50 else '🔴 Baixa'
-    )
-    
-    st.dataframe(canal_stats, use_container_width=True)
-
-def create_timeline_analysis(df):
-    """Análise de evolução temporal"""
-    if df.empty or 'created_at' not in df.columns:
-        return
-    
-    # Agrupa por hora
-    df_hourly = df.set_index('created_at').resample('H').agg({
-        'conversation_id': 'count',
-        'is_resolved': 'sum',
-        'satisfaction_score': 'mean'
-    }).reset_index()
-    
-    df_hourly.columns = ['Hora', 'Total_Conversas', 'Resolvidas', 'Satisfação_Média']
-    df_hourly = df_hourly[df_hourly['Total_Conversas'] > 0]
-    
-    if df_hourly.empty:
-        st.warning("Dados insuficientes para análise temporal")
-        return
-    
-    fig = make_subplots(specs=[[{"secondary_y": True}]])
-    
-    # Volume de conversas
-    fig.add_trace(
-        go.Scatter(
-            x=df_hourly['Hora'],
-            y=df_hourly['Total_Conversas'],
-            mode='lines+markers',
-            name='Total Conversas',
-            line=dict(color='#3498db', width=3)
-        ),
-        secondary_y=False,
-    )
-    
-    # Conversas resolvidas
-    fig.add_trace(
-        go.Scatter(
-            x=df_hourly['Hora'],
-            y=df_hourly['Resolvidas'],
-            mode='lines+markers',
-            name='Resolvidas',
-            line=dict(color='#2ecc71', width=2)
-        ),
-        secondary_y=False,
-    )
-    
-    # Satisfação (eixo secundário)
-    fig.add_trace(
-        go.Scatter(
-            x=df_hourly['Hora'],
-            y=df_hourly['Satisfação_Média'],
-            mode='lines+markers',
-            name='Satisfação Média',
-            line=dict(color='#f39c12', width=2),
-            yaxis='y2'
-        ),
-        secondary_y=True,
-    )
-    
-    fig.update_xaxes(title_text="Período")
-    fig.update_yaxes(title_text="Número de Conversas", secondary_y=False)
-    fig.update_yaxes(title_text="Satisfação (1-5)", secondary_y=True)
-    fig.update_layout(
-        title_text="Evolução Temporal de Atendimentos",
-        height=400
-    )
-    
-    st.plotly_chart(fig, use_container_width=True)
-
-def create_frustration_analysis(df):
-    """Análise de nível de frustração"""
-    if df.empty or 'frustration_category' not in df.columns:
-        return
-    
-    frustration_stats = df.groupby('frustration_category').agg({
-        'conversation_id': 'count',
-        'is_resolved': 'sum',
-        'first_response_time': 'mean'
-    }).round(2)
-    
-    frustration_stats.columns = ['Total', 'Resolvidas', 'Tempo_Resposta_Médio']
-    frustration_stats['Taxa_Resolução'] = (
-        frustration_stats['Resolvidas'] / frustration_stats['Total'] * 100
-    ).round(1)
-    frustration_stats = frustration_stats.reset_index()
-    
-    fig = px.bar(
-        frustration_stats,
-        x='frustration_category',
-        y='Total',
-        title="Distribuição por Nível de Frustração",
-        color='Taxa_Resolução',
-        color_continuous_scale='RdYlGn',
-        text='Total'
-    )
-    
-    fig.update_layout(height=400)
-    st.plotly_chart(fig, use_container_width=True)
-
-def create_hourly_heatmap(df):
-    """Mapa de calor por horário"""
-    if df.empty or 'hour_of_day' not in df.columns or 'day_of_week' not in df.columns:
-        return
-    
-    # Criar pivot table
-    heatmap_data = df.pivot_table(
-        values='conversation_id',
-        index='day_of_week',
-        columns='hour_of_day',
-        aggfunc='count',
-        fill_value=0
-    )
-    
-    # Reordenar dias da semana
-    day_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-    heatmap_data = heatmap_data.reindex(day_order)
-    
-    fig = px.imshow(
-        heatmap_data,
-        title="Mapa de Calor: Volume de Atendimentos por Horário",
-        labels=dict(x="Hora do Dia", y="Dia da Semana", color="Conversas"),
-        color_continuous_scale='Blues'
-    )
-    
-    fig.update_layout(height=400)
-    st.plotly_chart(fig, use_container_width=True)
-
-def create_response_time_analysis(df):
-    """Análise detalhada de tempo de resposta"""
-    if df.empty or 'first_response_time' not in df.columns:
-        return
-    
-    # Distribuição de tempo de resposta
-    fig = px.histogram(
-        df[df['first_response_time'] > 0],
-        x='first_response_time',
-        title="Distribuição de Tempo de Primeira Resposta",
-        nbins=20,
-        labels={'first_response_time': 'Tempo de Resposta (segundos)'}
-    )
-    
-    fig.update_layout(height=400)
-    st.plotly_chart(fig, use_container_width=True)
-    
-    # Estatísticas descritivas
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        st.subheader("Estatísticas de Tempo de Resposta")
-        response_times = df['first_response_time'][df['first_response_time'] > 0]
+    try:
+        status_column = safe_get_column(df, 'status', 'UNKNOWN')
+        status_count = status_column.value_counts()
         
-        if len(response_times) > 0:
-            st.metric("Tempo Mínimo", f"{response_times.min():.1f}s")
-            st.metric("Tempo Máximo", f"{response_times.max():.1f}s")
-            st.metric("Mediana", f"{response_times.median():.1f}s")
-    
-    with col2:
-        st.subheader("SLA de Atendimento")
+        if status_count.empty:
+            st.warning("📊 Nenhum status encontrado nos dados")
+            return
         
-        if len(response_times) > 0:
-            sla_30s = (response_times <= 30).mean() * 100
-            sla_60s = (response_times <= 60).mean() * 100
-            sla_120s = (response_times <= 120).mean() * 100
+        # Cores premium para status
+        cores_status = {
+            'RESOLVED': '#4caf50',
+            'UNRESOLVED': '#ff9800', 
+            'HUMAN_REQUESTED': '#f44336',
+            'UNKNOWN': '#9e9e9e'
+        }
+        
+        colors = [cores_status.get(status, '#9e9e9e') for status in status_count.index]
+        
+        # Criar gráfico com estilo premium
+        fig = px.pie(
+            values=status_count.values,
+            names=status_count.index,
+            title="📊 Distribuição por Status de Atendimento",
+            color_discrete_sequence=colors,
+            hole=0.4  # Donut chart para visual mais moderno
+        )
+        
+        # Personalização premium
+        fig.update_traces(
+            textposition='inside', 
+            textinfo='percent+label',
+            textfont_size=12,
+            marker=dict(line=dict(color='rgba(255,255,255,0.2)', width=2))
+        )
+        
+        fig.update_layout(
+            font=dict(color='#e3f2fd', size=12),
+            paper_bgcolor='rgba(0,0,0,0)',
+            plot_bgcolor='rgba(0,0,0,0)',
+            title_font_size=16,
+            title_font_color='#90caf9',
+            height=400,
+            showlegend=True,
+            legend=dict(
+                bgcolor='rgba(255,255,255,0.05)',
+                bordercolor='rgba(100,181,246,0.2)',
+                borderwidth=1
+            )
+        )
+        
+        st.plotly_chart(fig, use_container_width=True)
+        
+    except Exception as e:
+        st.error(f"❌ Erro ao criar gráfico de status: {e}")
+
+def create_premium_channel_analysis(df):
+    """Análise por canal - DESIGN PREMIUM"""
+    if df.empty:
+        st.info("📊 Aguardando dados para análise de canais")
+        return
+    
+    try:
+        # Criar dados seguros
+        safe_data = {}
+        safe_data['channel'] = safe_get_column(df, 'channel', 'unknown')
+        safe_data['conversation_id'] = safe_get_column(df, 'conversation_id', 'conv_unknown')
+        safe_data['is_resolved'] = safe_get_column(df, 'is_resolved', False)
+        safe_data['satisfaction_score'] = safe_get_column(df, 'satisfaction_score', 0)
+        safe_data['first_response_time'] = safe_get_column(df, 'first_response_time', 0)
+        
+        safe_df = pd.DataFrame(safe_data)
+        
+        canal_stats = safe_df.groupby('channel').agg({
+            'conversation_id': 'count',
+            'is_resolved': 'sum',
+            'satisfaction_score': 'mean',
+            'first_response_time': 'mean'
+        }).round(2)
+        
+        canal_stats.columns = ['Total', 'Resolvidos', 'Satisfação_Média', 'Tempo_Resposta_Médio']
+        canal_stats['Taxa_Resolução'] = (canal_stats['Resolvidos'] / canal_stats['Total'] * 100).round(1)
+        canal_stats = canal_stats.reset_index()
+        
+        if not canal_stats.empty:
+            # Gráfico premium
+            fig = px.bar(
+                canal_stats,
+                x='channel',
+                y=['Total', 'Resolvidos'],
+                title="📈 Performance por Canal de Atendimento",
+                barmode='group',
+                color_discrete_sequence=['#64b5f6', '#4caf50'],
+                text_auto=True
+            )
             
-            st.metric("< 30 segundos", f"{sla_30s:.1f}%")
-            st.metric("< 60 segundos", f"{sla_60s:.1f}%")
-            st.metric("< 2 minutos", f"{sla_120s:.1f}%")
+            # Personalização premium
+            fig.update_layout(
+                font=dict(color='#e3f2fd', size=12),
+                paper_bgcolor='rgba(0,0,0,0)',
+                plot_bgcolor='rgba(0,0,0,0)',
+                title_font_size=16,
+                title_font_color='#90caf9',
+                height=400,
+                xaxis=dict(
+                    gridcolor='rgba(100,181,246,0.1)',
+                    title_font_color='#90caf9'
+                ),
+                yaxis=dict(
+                    gridcolor='rgba(100,181,246,0.1)',
+                    title_font_color='#90caf9'
+                ),
+                legend=dict(
+                    bgcolor='rgba(255,255,255,0.05)',
+                    bordercolor='rgba(100,181,246,0.2)',
+                    borderwidth=1
+                )
+            )
+            
+            fig.update_traces(
+                textfont_color='white',
+                marker_line_color='rgba(255,255,255,0.2)',
+                marker_line_width=1
+            )
+            
+            st.plotly_chart(fig, use_container_width=True)
+            
+            # Tabela premium
+            st.markdown("### 📋 Detalhes por Canal")
+            canal_stats['🎯 Performance'] = canal_stats['Taxa_Resolução'].apply(
+                lambda x: '🔥 Excelente' if x >= 90 else '👍 Boa' if x >= 70 else '⚠️ Regular' if x >= 50 else '🔴 Baixa'
+            )
+            st.dataframe(canal_stats, use_container_width=True)
+        else:
+            st.warning("📊 Sem dados de canal para exibir")
+            
+    except Exception as e:
+        st.error(f"❌ Erro na análise de canais: {e}")
 
 def main():
-    """Função principal do dashboard"""
+    """Função principal do dashboard premium"""
     
-    # Header
-    st.title("💬 Dashboard Chatvolt Analytics")
-    st.subheader("Sistema Completo de Métricas de Atendimento - v1.0")
+    # Aplicar estilo premium
+    apply_premium_styling()
     
-    # Sidebar com filtros e controles
-    st.sidebar.title("🎛️ Controles")
+    # Header premium com branding Reach IA
+    st.markdown("""
+    <h1>🚀 Dashboard Reach IA</h1>
+    <div class="subtitle">
+        Análise Inteligente de Conversas | Otimização de Atendimento com IA
+    </div>
+    """, unsafe_allow_html=True)
     
-    # Opção de fonte de dados
-    data_source = st.sidebar.radio(
-        "Fonte de Dados:",
-        ["Google Sheets", "Tempo Real (API)", "Ambas"]
-    )
+    # Sidebar premium
+    with st.sidebar:
+        st.markdown("### 🎛️ Centro de Controle")
+        
+        # Status de conexão premium
+        st.markdown("#### 🔍 Status do Sistema")
+        
+        config_ok = True
+        if 'GOOGLE_CREDENTIALS' not in st.secrets:
+            st.error("🔐 Google Credentials")
+            config_ok = False
+        else:
+            st.success("🔐 Google Credentials")
+        
+        if 'chatvolt_api_key' not in st.secrets:
+            st.warning("🔑 API Chatvolt")
+        else:
+            st.success("🔑 API Chatvolt")
+        
+        st.markdown("---")
+        
+        # Controles premium
+        data_source = st.radio(
+            "📊 Fonte de Dados:",
+            ["Google Sheets", "Dados Demonstração"],
+            help="Escolha a fonte dos dados para análise"
+        )
+        
+        st.markdown("---")
+        
+        auto_refresh = st.checkbox("🔄 Auto-refresh (30s)", False, help="Atualização automática dos dados")
+        
+        if auto_refresh:
+            time.sleep(30)
+            st.rerun()
+        
+        if st.button("🔄 Atualizar Agora", help="Atualizar dados manualmente"):
+            st.cache_data.clear()
+            st.rerun()
     
-    # Auto-refresh toggle
-    auto_refresh = st.sidebar.checkbox("🔄 Auto-refresh (30s)", False)
-    
-    if auto_refresh:
-        time.sleep(30)
-        st.rerun()
-    
-    # Botão de atualização manual
-    if st.sidebar.button("🔄 Atualizar Dados Agora"):
-        st.cache_data.clear()
-        st.rerun()
-    
-    # Carregamento de dados
-    with st.spinner("Carregando dados..."):
-        if data_source == "Google Sheets":
+    # Carregamento de dados com spinner premium
+    with st.spinner("🚀 Carregando dados do Reach IA..."):
+        if data_source == "Google Sheets" and config_ok:
             df = get_data_from_sheets()
-        elif data_source == "Tempo Real (API)":
-            df = collect_realtime_data()
-        else:  # Ambas
-            df_sheets = get_data_from_sheets()
-            df_api = collect_realtime_data()
-            df = pd.concat([df_sheets, df_api], ignore_index=True) if not df_sheets.empty else df_api
+        else:
+            # Dados de demonstração
+            st.info("🔧 **Modo Demonstração** - Dados simulados para teste")
+            mock_data = {
+                'conversation_id': ['conv_001', 'conv_002', 'conv_003', 'conv_004', 'conv_005'],
+                'created_at': [datetime.now() - timedelta(hours=i) for i in range(5)],
+                'status': ['RESOLVED', 'UNRESOLVED', 'RESOLVED', 'HUMAN_REQUESTED', 'RESOLVED'],
+                'priority': ['HIGH', 'MEDIUM', 'LOW', 'HIGH', 'MEDIUM'],
+                'channel': ['whatsapp', 'dashboard', 'whatsapp', 'api', 'whatsapp'],
+                'frustration_level': [2, 3, 1, 4, 2],
+                'first_response_time': [30, 45, 25, 90, 35],
+                'satisfaction_score': [4, 2, 5, 3, 4],
+                'is_resolved': [True, False, True, False, True],
+                'needs_human': [False, False, False, True, False]
+            }
+            df = pd.DataFrame(mock_data)
+            df = process_chatvolt_data(df)
     
+    # Verificar se temos dados
     if df.empty:
-        st.error("Não foi possível carregar os dados")
+        st.error("❌ Nenhum dado disponível para análise")
+        st.info("🔧 **Soluções sugeridas:**")
+        st.info("• Verifique se a service account tem acesso à planilha")
+        st.info("• Configure as credenciais no Streamlit Secrets") 
+        st.info("• Use o modo demonstração para testar")
         st.stop()
     
-    # Filtros na sidebar
-    st.sidebar.subheader("🔍 Filtros")
+    # Status de carregamento premium
+    st.success(f"✅ **Sistema Reach IA ativo** - {len(df)} conversas analisadas")
     
-    # Filtro de período
-    if 'created_at' in df.columns and not df['created_at'].isna().all():
-        data_min = df['created_at'].min().date()
-        data_max = df['created_at'].max().date()
+    # Cards de métricas premium
+    create_premium_metrics_cards(df)
     
-    # Calcular valor padrão do período (máximo 7 dias, mínimo data_min)
-    periodo_inicio_padrao = max(data_min, data_max - timedelta(days=7))
+    # Separador visual
+    st.markdown("---")
     
-    periodo = st.sidebar.date_input(
-        "Período:",
-        value=(periodo_inicio_padrao, data_max),  # ✅ CORRIGIDO
-        min_value=data_min,
-        max_value=data_max
-    )
-        
-    if len(periodo) == 2:
-            mask = (df['created_at'].dt.date >= periodo[0]) & (df['created_at'].dt.date <= periodo[1])
-            df = df[mask]
-    
-    # Filtro de canal
-    if 'channel' in df.columns:
-        canais_disponiveis = ['Todos'] + list(df['channel'].unique())
-        canal_selecionado = st.sidebar.selectbox("Canal:", canais_disponiveis)
-        if canal_selecionado != 'Todos':
-            df = df[df['channel'] == canal_selecionado]
-    
-    # Filtro de status
-    if 'status' in df.columns:
-        status_disponiveis = ['Todos'] + list(df['status'].unique())
-        status_selecionado = st.sidebar.selectbox("Status:", status_disponiveis)
-        if status_selecionado != 'Todos':
-            df = df[df['status'] == status_selecionado]
-    
-    # Filtro de prioridade
-    if 'priority' in df.columns:
-        prioridades_disponiveis = ['Todas'] + list(df['priority'].unique())
-        prioridade_selecionada = st.sidebar.selectbox("Prioridade:", prioridades_disponiveis)
-        if prioridade_selecionada != 'Todas':
-            df = df[df['priority'] == prioridade_selecionada]
-    
-    # Status do sistema
-    st.success(f"✅ Sistema funcionando - {len(df)} conversas carregadas")
-    
-    # Cards de métricas
-    create_metrics_cards(df)
-    
-    # Layout em abas
-    tab1, tab2, tab3, tab4, tab5 = st.tabs([
-        "📊 Visão Geral", 
-        "⏱️ Tempo de Atendimento", 
-        "📈 Análise Temporal", 
-        "😤 Frustração", 
-        "📋 Dados Detalhados"
+    # Layout em abas premium
+    tab1, tab2, tab3 = st.tabs([
+        "📊 **Visão Geral**", 
+        "📈 **Análise Temporal**", 
+        "📋 **Dados Detalhados**"
     ])
     
     with tab1:
         col1, col2 = st.columns(2)
         with col1:
-            create_status_distribution_chart(df)
+            create_premium_status_chart(df)
         with col2:
-            create_channel_analysis(df)
+            create_premium_channel_analysis(df)
     
     with tab2:
-        create_response_time_analysis(df)
+        st.info("📈 Análise temporal será implementada na próxima fase")
+        st.markdown("**Em desenvolvimento:**")
+        st.markdown("• Evolução temporal das conversas")
+        st.markdown("• Mapa de calor por horário") 
+        st.markdown("• Tendências e padrões")
     
     with tab3:
-        create_timeline_analysis(df)
-        st.subheader("🕐 Mapa de Calor por Horário")
-        create_hourly_heatmap(df)
-    
-    with tab4:
-        create_frustration_analysis(df)
-    
-    with tab5:
-        st.subheader("📋 Dados Detalhados das Conversas")
+        st.markdown("### 📋 Dados Detalhados das Conversas")
         
         if not df.empty:
-            # Preparar colunas para exibição
             colunas_exibir = [
                 'conversation_id', 'created_at', 'status', 'channel', 'priority',
-                'frustration_level', 'first_response_time', 'satisfaction_score',
-                'is_resolved', 'contact_name', 'contact_email'
+                'frustration_level', 'first_response_time', 'satisfaction_score'
             ]
             
             colunas_disponiveis = [col for col in colunas_exibir if col in df.columns]
@@ -688,26 +939,30 @@ def main():
             if 'created_at' in df_display.columns:
                 df_display['created_at'] = df_display['created_at'].dt.strftime('%d/%m/%Y %H:%M')
             
-            st.info(f"📊 Mostrando {len(df_display)} conversas")
+            st.info(f"📊 Exibindo **{len(df_display)}** conversas")
             st.dataframe(df_display, use_container_width=True, height=400)
             
-            # Download CSV
-            csv = df_display.to_csv(index=False)
-            st.download_button(
-                label="📥 Download CSV",
-                data=csv,
-                file_name=f'chatvolt_conversas_{datetime.now().strftime("%Y%m%d_%H%M")}.csv',
-                mime='text/csv'
-            )
+            # Download premium
+            if st.button("📥 Preparar Download CSV"):
+                csv = df_display.to_csv(index=False)
+                st.download_button(
+                    label="📥 Baixar Dados CSV",
+                    data=csv,
+                    file_name=f'reach_ia_conversas_{datetime.now().strftime("%Y%m%d_%H%M")}.csv',
+                    mime='text/csv'
+                )
+        else:
+            st.warning("Nenhum dado disponível para exibição")
     
-    # Footer
-    st.markdown("---")
-    st.markdown(
-        f"**Chatvolt Analytics v1.0** | "
-        f"Última atualização: {datetime.now(pytz.timezone('America/Sao_Paulo')).strftime('%d/%m/%Y %H:%M:%S')} | "
-        f"Fonte: {data_source} | "
-        f"🔄 Cache: 5 minutos"
-    )
+    # Footer premium
+    st.markdown("""
+    <div class="footer">
+        <strong>🚀 Dashboard Reach IA Premium</strong> | 
+        Última atualização: """ + f"""{datetime.now(pytz.timezone('America/Sao_Paulo')).strftime('%d/%m/%Y %H:%M:%S')} | 
+        Conversas analisadas: {len(df)} | 
+        Powered by IA
+    </div>
+    """, unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
