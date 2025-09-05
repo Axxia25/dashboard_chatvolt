@@ -1,6 +1,6 @@
 """
 DASHBOARD REACH IA - ANÁLISE INTELIGENTE DE CONVERSAS
-Visual inspirado no Dashboard Luis Imóveis - Clean e Profissional
+Visual dark Luis Imóveis + Correção de erros de conversão
 Sistema expandido com dados ricos da planilha Chatvolt
 """
 
@@ -26,6 +26,134 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# Aplicar CSS para visual dark (igual imagem Luis Imóveis)
+st.markdown("""
+<style>
+/* Tema escuro igual Luis Imóveis */
+.stApp {
+    background-color: #0e1117;
+    color: #fafafa;
+}
+
+.main .block-container {
+    background-color: #0e1117;
+    padding-top: 1rem;
+}
+
+/* Header */
+h1 {
+    color: #fafafa !important;
+    font-weight: 600;
+}
+
+h2, h3 {
+    color: #fafafa !important;
+}
+
+/* Métricas */
+[data-testid="metric-container"] {
+    background-color: #262730;
+    border: 1px solid #464853;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    color: #fafafa;
+}
+
+[data-testid="metric-container"] > div {
+    color: #fafafa !important;
+}
+
+[data-testid="metric-container"] [data-testid="metric-value"] {
+    color: #fafafa !important;
+}
+
+[data-testid="metric-container"] [data-testid="metric-label"] {
+    color: #a3a8b8 !important;
+}
+
+/* Sidebar */
+.css-1d391kg {
+    background-color: #262730;
+}
+
+.css-1d391kg .css-10trblm {
+    color: #fafafa;
+}
+
+/* Gráficos */
+.js-plotly-plot {
+    background-color: #262730 !important;
+}
+
+/* Dataframe */
+.stDataFrame {
+    background-color: #262730;
+}
+
+/* Alertas */
+.stAlert {
+    background-color: #262730;
+    border: 1px solid #464853;
+    color: #fafafa;
+}
+
+.stSuccess {
+    background-color: #1e4d3f;
+    border-color: #2ecc71;
+    color: #fafafa;
+}
+
+.stError {
+    background-color: #4d1e1e;
+    border-color: #e74c3c;
+    color: #fafafa;
+}
+
+.stInfo {
+    background-color: #1e3a5f;
+    border-color: #3498db;
+    color: #fafafa;
+}
+
+.stWarning {
+    background-color: #5f4a1e;
+    border-color: #f39c12;
+    color: #fafafa;
+}
+
+/* Selectbox e inputs */
+.stSelectbox > div > div {
+    background-color: #262730;
+    color: #fafafa;
+    border-color: #464853;
+}
+
+.stDateInput > div > div {
+    background-color: #262730;
+    color: #fafafa;
+    border-color: #464853;
+}
+
+/* Botões */
+.stButton > button {
+    background-color: #3498db;
+    color: #fafafa;
+    border: none;
+}
+
+.stButton > button:hover {
+    background-color: #2980b9;
+}
+
+/* Download button */
+.stDownloadButton > button {
+    background-color: #27ae60;
+    color: #fafafa;
+    border: none;
+}
+</style>
+""", unsafe_allow_html=True)
+
 # Configurações
 CHATVOLT_API_BASE = "https://api.chatvolt.ai"
 SCOPES = [
@@ -34,7 +162,7 @@ SCOPES = [
 ]
 PLANILHA_ID = "1Ji8hgGiQanGKMqblxRzkA_E_sLoI6AnpapmU72nXHsA"
 
-# Cores do tema (igual Luis Imóveis)
+# Cores do tema (cores vibrantes para fundo escuro)
 CORES_TEMA = {
     'azul': '#3498db',
     'verde': '#2ecc71', 
@@ -44,9 +172,33 @@ CORES_TEMA = {
     'cinza': '#95a5a6'
 }
 
+def safe_numeric_conversion(series, default_value=0):
+    """Converte série para numérico de forma segura"""
+    try:
+        # Tentar conversão direta
+        numeric_series = pd.to_numeric(series, errors='coerce')
+        # Substituir NaN por valor padrão
+        return numeric_series.fillna(default_value)
+    except Exception:
+        # Se falhar completamente, retornar série com valor padrão
+        return pd.Series([default_value] * len(series))
+
+def safe_get_column(df, column_name, default_value=None, numeric=False):
+    """Retorna coluna do DataFrame de forma segura"""
+    if column_name in df.columns:
+        if numeric:
+            return safe_numeric_conversion(df[column_name], default_value or 0)
+        else:
+            return df[column_name]
+    else:
+        if df.empty:
+            return pd.Series(dtype='object')
+        default_val = default_value if default_value is not None else (0 if numeric else '')
+        return pd.Series([default_val] * len(df))
+
 @st.cache_data(ttl=300)  # Cache por 5 minutos
 def get_rich_data_from_sheets():
-    """Carrega dados ricos das duas abas da planilha - MÉTODO MELHORADO"""
+    """Carrega dados ricos das duas abas da planilha"""
     try:
         if 'GOOGLE_CREDENTIALS' not in st.secrets:
             st.error("🔐 Credenciais do Google não configuradas")
@@ -66,7 +218,6 @@ def get_rich_data_from_sheets():
                 headers = conversas_data[0]
                 rows = [row for row in conversas_data[1:] if any(cell.strip() for cell in row if cell)]
                 if rows:
-                    # Garantir mesmo número de colunas
                     max_cols = len(headers)
                     processed_rows = []
                     for row in rows:
@@ -88,7 +239,6 @@ def get_rich_data_from_sheets():
                 headers = contatos_data[0]
                 rows = [row for row in contatos_data[1:] if any(cell.strip() for cell in row if cell)]
                 if rows:
-                    # Garantir mesmo número de colunas
                     max_cols = len(headers)
                     processed_rows = []
                     for row in rows:
@@ -108,99 +258,138 @@ def get_rich_data_from_sheets():
         return pd.DataFrame(), pd.DataFrame()
 
 def process_rich_data(conversas_df, contatos_df):
-    """Processa e enriquece os dados combinando as duas abas"""
+    """Processa e enriquece os dados de forma segura"""
     
     if not contatos_df.empty:
-        # Usar dados da aba Contatos (mais rica)
         df = contatos_df.copy()
         st.info("📊 Usando dados enriquecidos da aba Contatos")
     elif not conversas_df.empty:
-        # Fallback para aba Conversas
         df = conversas_df.copy()
         st.info("📊 Usando dados básicos da aba Conversas")
     else:
         st.warning("⚠️ Nenhum dado encontrado em ambas as abas")
         return pd.DataFrame()
     
-    # Processar campos essenciais
-    essential_fields = [
-        'conversation_id', 'created_at', 'status', 'channel', 'priority',
-        'frustration_level', 'first_response_time', 'satisfaction_score',
-        'context_sentiment', 'mentions_product', 'mentions_price',
-        'var_preco', 'quantidade_pneus', 'modelo_pneu', 'resolved', 'escalated_to_human'
-    ]
+    # Processar campos essenciais de forma defensiva
+    essential_fields = {
+        'conversation_id': ('string', ''),
+        'created_at': ('datetime', None),
+        'status': ('string', 'UNKNOWN'),
+        'channel': ('string', 'unknown'),
+        'priority': ('string', 'MEDIUM'),
+        'frustration_level': ('numeric', 0),
+        'first_response_time': ('numeric', 0),
+        'resolution_time': ('numeric', 0),
+        'satisfaction_score': ('numeric', 0),
+        'context_sentiment': ('string', 'neutral'),
+        'mentions_product': ('boolean', False),
+        'mentions_price': ('boolean', False),
+        'var_preco': ('numeric', 0),
+        'quantidade_pneus': ('numeric', 0),
+        'resolved': ('boolean', False),
+        'escalated_to_human': ('boolean', False)
+    }
     
-    for field in essential_fields:
+    for field, (field_type, default_value) in essential_fields.items():
         if field not in df.columns:
-            if field in ['mentions_product', 'mentions_price', 'resolved', 'escalated_to_human']:
+            if field_type == 'boolean':
                 df[field] = False
-            elif field == 'context_sentiment':
-                df[field] = 'neutral'
+            elif field_type == 'numeric':
+                df[field] = 0
             else:
-                df[field] = '' if field in ['conversation_id', 'status', 'channel'] else 0
+                df[field] = default_value
     
-    # Processar timestamps
+    # Processar timestamps de forma segura
     for time_col in ['created_at', 'updated_at']:
         if time_col in df.columns:
-            df[time_col] = pd.to_datetime(df[time_col], errors='coerce', dayfirst=True)
+            try:
+                df[time_col] = pd.to_datetime(df[time_col], errors='coerce', dayfirst=True)
+                # Se todas as datas são inválidas, usar data atual
+                if df[time_col].isna().all():
+                    df[time_col] = datetime.now()
+            except:
+                df[time_col] = datetime.now()
     
-    # Processar campos numéricos
-    numeric_fields = ['frustration_level', 'first_response_time', 'satisfaction_score', 'var_preco', 'quantidade_pneus']
+    # Processar campos numéricos de forma SEGURA
+    numeric_fields = ['frustration_level', 'first_response_time', 'resolution_time', 
+                     'satisfaction_score', 'var_preco', 'quantidade_pneus']
+    
     for field in numeric_fields:
         if field in df.columns:
-            df[field] = pd.to_numeric(df[field], errors='coerce').fillna(0)
+            df[field] = safe_numeric_conversion(df[field], default_value=0)
     
-    # Processar campos booleanos
+    # Processar campos booleanos de forma segura
     bool_fields = ['mentions_product', 'mentions_price', 'resolved', 'escalated_to_human']
     for field in bool_fields:
         if field in df.columns:
-            df[field] = df[field].astype(str).str.lower().isin(['true', 'sim', 'yes', '1'])
+            try:
+                df[field] = df[field].astype(str).str.lower().isin(['true', 'sim', 'yes', '1'])
+            except:
+                df[field] = False
     
     # Processar status
-    if 'status' in df.columns:
+    try:
         df['status'] = df['status'].astype(str).str.upper()
         df['is_resolved'] = df['status'] == 'RESOLVED'
         df['needs_human'] = df['status'] == 'HUMAN_REQUESTED'
+    except:
+        df['is_resolved'] = False
+        df['needs_human'] = False
     
-    # Classificar sentimento em português
-    if 'context_sentiment' in df.columns:
+    # Classificar sentimento
+    try:
         sentiment_map = {'positive': 'Positivo', 'negative': 'Negativo', 'neutral': 'Neutro'}
         df['sentiment_pt'] = df['context_sentiment'].map(sentiment_map).fillna('Neutro')
+    except:
+        df['sentiment_pt'] = 'Neutro'
     
     # Filtrar registros válidos
-    df = df[df['conversation_id'].notna() & (df['conversation_id'].astype(str) != '')]
+    try:
+        df = df[df['conversation_id'].notna() & (df['conversation_id'].astype(str) != '')]
+    except:
+        pass
     
     return df
 
 def create_metrics_cards(df):
-    """Cria cards de métricas principais - ESTILO LUIS IMÓVEIS"""
+    """Cria cards de métricas principais - VERSÃO CORRIGIDA"""
     if df.empty:
         st.warning("Nenhum dado encontrado")
         return
     
     total_conversas = len(df)
-    conversas_resolvidas = df.get('is_resolved', pd.Series([False])).sum()
+    
+    # Usar função segura para obter colunas numéricas
+    conversas_resolvidas = safe_get_column(df, 'is_resolved', False).sum()
     taxa_resolucao = (conversas_resolvidas / total_conversas * 100) if total_conversas > 0 else 0
     
-    # Calcular métricas de tempo
-    tempo_resposta_medio = df.get('first_response_time', pd.Series([0])).mean()
-    tempo_resolucao_medio = df.get('resolution_time', pd.Series([0])).mean()
+    # Métricas de tempo - VERSÃO CORRIGIDA
+    tempo_resposta_medio = safe_get_column(df, 'first_response_time', 0, numeric=True).mean()
+    tempo_resolucao_medio = safe_get_column(df, 'resolution_time', 0, numeric=True).mean()
     
     # Satisfação média
-    satisfacao_media = df.get('satisfaction_score', pd.Series([0])).mean()
+    satisfacao_media = safe_get_column(df, 'satisfaction_score', 0, numeric=True).mean()
     
     # Escalações para humano
-    escalacoes = df.get('needs_human', pd.Series([False])).sum()
+    escalacoes = safe_get_column(df, 'needs_human', False).sum()
     taxa_escalacao = (escalacoes / total_conversas * 100) if total_conversas > 0 else 0
     
     # Análises IA
-    sentimento_positivo = (df.get('context_sentiment', pd.Series([])) == 'positive').sum() if 'context_sentiment' in df.columns else 0
-    mencoes_produto = df.get('mentions_product', pd.Series([False])).sum() if 'mentions_product' in df.columns else 0
+    sentimento_positivo = 0
+    if 'context_sentiment' in df.columns:
+        sentimento_positivo = (df['context_sentiment'] == 'positive').sum()
+    
+    mencoes_produto = safe_get_column(df, 'mentions_product', False).sum()
     
     # Conversas por canal
-    canais_stats = df.get('channel', pd.Series([])).value_counts().to_dict() if 'channel' in df.columns else {}
+    canais_stats = {}
+    if 'channel' in df.columns:
+        try:
+            canais_stats = df['channel'].value_counts().to_dict()
+        except:
+            pass
     
-    # Exibir métricas em grid 4x2 (igual Luis Imóveis)
+    # Exibir métricas em grid 4x2
     col1, col2, col3, col4 = st.columns(4)
     
     with col1:
@@ -220,13 +409,12 @@ def create_metrics_cards(df):
         st.metric("Menções Produto", f"{mencoes_produto}")
 
 def create_status_distribution_chart(df):
-    """Gráfico de distribuição por status - ESTILO LUIS IMÓVEIS"""
+    """Gráfico de distribuição por status"""
     if df.empty or 'status' not in df.columns:
         return
     
     status_count = df['status'].value_counts()
     
-    # Cores do tema Luis Imóveis
     cores_status = {
         'RESOLVED': CORES_TEMA['verde'],
         'UNRESOLVED': CORES_TEMA['laranja'], 
@@ -243,296 +431,181 @@ def create_status_distribution_chart(df):
         color_discrete_sequence=colors
     )
     
+    # Estilo para fundo escuro
     fig.update_traces(textposition='inside', textinfo='percent+label')
-    fig.update_layout(height=400, showlegend=True)
+    fig.update_layout(
+        height=400,
+        showlegend=True,
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)',
+        font=dict(color='white'),
+        title_font_color='white'
+    )
     st.plotly_chart(fig, use_container_width=True)
 
 def create_channel_analysis(df):
-    """Análise por canal - ESTILO LUIS IMÓVEIS"""
+    """Análise por canal"""
     if df.empty or 'channel' not in df.columns:
         return
     
-    canal_stats = df.groupby('channel').agg({
-        'conversation_id': 'count',
-        'is_resolved': 'sum',
-        'satisfaction_score': 'mean',
-        'first_response_time': 'mean'
-    }).round(2)
+    try:
+        # Usar funções seguras para evitar erros
+        canal_data = []
+        for channel in df['channel'].unique():
+            channel_df = df[df['channel'] == channel]
+            total = len(channel_df)
+            resolvidos = safe_get_column(channel_df, 'is_resolved', False).sum()
+            satisfacao = safe_get_column(channel_df, 'satisfaction_score', 0, numeric=True).mean()
+            tempo_resposta = safe_get_column(channel_df, 'first_response_time', 0, numeric=True).mean()
+            
+            canal_data.append({
+                'channel': channel,
+                'Total': total,
+                'Resolvidos': resolvidos,
+                'Satisfação_Média': round(satisfacao, 2),
+                'Tempo_Resposta_Médio': round(tempo_resposta, 2),
+                'Taxa_Resolução': round((resolvidos / total * 100), 1) if total > 0 else 0
+            })
+        
+        canal_stats = pd.DataFrame(canal_data)
+        
+        if not canal_stats.empty:
+            fig = px.bar(
+                canal_stats,
+                x='channel',
+                y=['Total', 'Resolvidos'],
+                title="Performance por Canal de Atendimento",
+                barmode='group',
+                color_discrete_sequence=[CORES_TEMA['azul'], CORES_TEMA['verde']],
+                text_auto=True
+            )
+            
+            # Estilo para fundo escuro
+            fig.update_layout(
+                height=400,
+                xaxis_tickangle=-45,
+                plot_bgcolor='rgba(0,0,0,0)',
+                paper_bgcolor='rgba(0,0,0,0)',
+                font=dict(color='white'),
+                title_font_color='white',
+                xaxis=dict(color='white', gridcolor='rgba(255,255,255,0.1)'),
+                yaxis=dict(color='white', gridcolor='rgba(255,255,255,0.1)')
+            )
+            st.plotly_chart(fig, use_container_width=True)
+            
+            # Tabela detalhada
+            st.subheader("Detalhes por Canal")
+            canal_stats['Performance'] = canal_stats['Taxa_Resolução'].apply(
+                lambda x: '🔥 Excelente' if x >= 90 else '👍 Boa' if x >= 70 else '⚠️ Regular' if x >= 50 else '🔴 Baixa'
+            )
+            st.dataframe(canal_stats, use_container_width=True)
     
-    canal_stats.columns = ['Total', 'Resolvidos', 'Satisfação_Média', 'Tempo_Resposta_Médio']
-    canal_stats['Taxa_Resolução'] = (canal_stats['Resolvidos'] / canal_stats['Total'] * 100).round(1)
-    canal_stats = canal_stats.reset_index()
-    
-    if not canal_stats.empty:
-        # Gráfico de barras simples (estilo Luis Imóveis)
-        fig = px.bar(
-            canal_stats,
-            x='channel',
-            y=['Total', 'Resolvidos'],
-            title="Performance por Canal de Atendimento",
-            barmode='group',
-            color_discrete_sequence=[CORES_TEMA['azul'], CORES_TEMA['verde']],
-            text_auto=True
-        )
-        
-        fig.update_layout(height=400, xaxis_tickangle=-45)
-        st.plotly_chart(fig, use_container_width=True)
-        
-        # Tabela detalhada com performance
-        st.subheader("Detalhes por Canal")
-        canal_stats['Performance'] = canal_stats['Taxa_Resolução'].apply(
-            lambda x: '🔥 Excelente' if x >= 90 else '👍 Boa' if x >= 70 else '⚠️ Regular' if x >= 50 else '🔴 Baixa'
-        )
-        
-        st.dataframe(canal_stats, use_container_width=True)
+    except Exception as e:
+        st.error(f"Erro na análise de canais: {e}")
 
 def create_timeline_analysis(df):
-    """Análise de evolução temporal - ESTILO LUIS IMÓVEIS"""
+    """Análise temporal"""
     if df.empty or 'created_at' not in df.columns or df['created_at'].isna().all():
         return
     
-    # Agrupa por dia
-    df_daily = df.set_index('created_at').resample('D').agg({
-        'conversation_id': 'count',
-        'is_resolved': 'sum'
-    }).reset_index()
-    
-    df_daily.columns = ['Data', 'Total_Conversas', 'Resolvidas']
-    df_daily = df_daily[df_daily['Total_Conversas'] > 0]
-    
-    if df_daily.empty:
-        st.warning("Dados insuficientes para análise temporal")
-        return
-    
-    # Calcular média móvel se tiver dados suficientes
-    if len(df_daily) >= 3:
-        df_daily['Media_Movel'] = df_daily['Total_Conversas'].rolling(window=3, center=True).mean()
-    
-    fig = make_subplots(specs=[[{"secondary_y": True}]])
-    
-    # Total de conversas
-    fig.add_trace(
-        go.Scatter(
-            x=df_daily['Data'],
-            y=df_daily['Total_Conversas'],
-            mode='lines+markers',
-            name='Total Conversas',
-            line=dict(color=CORES_TEMA['azul'], width=3),
-            hovertemplate='<b>%{x}</b><br>Total: %{y}<extra></extra>'
-        ),
-        secondary_y=False,
-    )
-    
-    # Conversas resolvidas
-    fig.add_trace(
-        go.Scatter(
-            x=df_daily['Data'],
-            y=df_daily['Resolvidas'],
-            mode='lines+markers',
-            name='Resolvidas',
-            line=dict(color=CORES_TEMA['verde'], width=2),
-            hovertemplate='<b>%{x}</b><br>Resolvidas: %{y}<extra></extra>'
-        ),
-        secondary_y=False,
-    )
-    
-    # Média móvel (se disponível)
-    if 'Media_Movel' in df_daily.columns:
+    try:
+        # Agrupa por dia
+        df_daily = df.set_index('created_at').resample('D').agg({
+            'conversation_id': 'count',
+            'is_resolved': 'sum'
+        }).reset_index()
+        
+        df_daily.columns = ['Data', 'Total_Conversas', 'Resolvidas']
+        df_daily = df_daily[df_daily['Total_Conversas'] > 0]
+        
+        if df_daily.empty:
+            st.warning("Dados insuficientes para análise temporal")
+            return
+        
+        fig = make_subplots(specs=[[{"secondary_y": True}]])
+        
         fig.add_trace(
             go.Scatter(
                 x=df_daily['Data'],
-                y=df_daily['Media_Movel'],
-                mode='lines',
-                name='Tendência (3 dias)',
-                line=dict(color=CORES_TEMA['laranja'], width=1, dash='dash'),
-                hovertemplate='<b>%{x}</b><br>Média: %{y:.1f}<extra></extra>'
+                y=df_daily['Total_Conversas'],
+                mode='lines+markers',
+                name='Total Conversas',
+                line=dict(color=CORES_TEMA['azul'], width=3)
             ),
             secondary_y=False,
         )
-    
-    fig.update_xaxes(title_text="Data")
-    fig.update_yaxes(title_text="Número de Conversas", secondary_y=False)
-    fig.update_layout(
-        title_text="Evolução de Conversas ao Longo do Tempo",
-        height=400,
-        hovermode='x unified'
-    )
-    
-    st.plotly_chart(fig, use_container_width=True)
-
-def create_sentiment_analysis(df):
-    """Análise de sentimento - ESTILO LUIS IMÓVEIS"""
-    if df.empty or 'context_sentiment' not in df.columns:
-        st.info("📊 Análise de sentimento não disponível nos dados atuais")
-        return
-    
-    sentiment_count = df['sentiment_pt'].value_counts()
-    
-    # Cores para sentimento
-    cores_sentimento = {
-        'Positivo': CORES_TEMA['verde'],
-        'Neutro': CORES_TEMA['cinza'],
-        'Negativo': CORES_TEMA['vermelho']
-    }
-    
-    colors = [cores_sentimento.get(sent, CORES_TEMA['cinza']) for sent in sentiment_count.index]
-    
-    fig = px.pie(
-        values=sentiment_count.values,
-        names=sentiment_count.index,
-        title="Análise de Sentimento (IA)",
-        color_discrete_sequence=colors
-    )
-    
-    fig.update_traces(textposition='inside', textinfo='percent+label')
-    fig.update_layout(height=400, showlegend=True)
-    st.plotly_chart(fig, use_container_width=True)
-
-def create_product_mentions_analysis(df):
-    """Análise de menções de produto - ESTILO LUIS IMÓVEIS"""
-    if df.empty or 'mentions_product' not in df.columns:
-        return
-    
-    # Estatísticas de menções
-    mencoes_stats = df.groupby(['mentions_product', 'mentions_price']).size().reset_index(name='Quantidade')
-    mencoes_stats['Categoria'] = mencoes_stats.apply(
-        lambda x: 'Produto + Preço' if x['mentions_product'] and x['mentions_price'] 
-                 else 'Apenas Produto' if x['mentions_product'] 
-                 else 'Apenas Preço' if x['mentions_price'] 
-                 else 'Sem Menções', axis=1
-    )
-    
-    categoria_count = mencoes_stats.groupby('Categoria')['Quantidade'].sum()
-    
-    fig = px.bar(
-        x=categoria_count.index,
-        y=categoria_count.values,
-        title="Análise de Menções (IA)",
-        color=categoria_count.values,
-        color_continuous_scale='Blues',
-        text=categoria_count.values
-    )
-    
-    fig.update_traces(texttemplate='%{text}', textposition='outside')
-    fig.update_layout(height=400, xaxis_tickangle=-45)
-    st.plotly_chart(fig, use_container_width=True)
-
-def create_commercial_analysis(df):
-    """Análise comercial com dados ricos"""
-    if df.empty:
-        return
-    
-    st.subheader("💼 Análise Comercial")
-    
-    # Verificar se temos dados comerciais
-    has_price_data = 'var_preco' in df.columns and df['var_preco'].sum() > 0
-    has_product_data = 'quantidade_pneus' in df.columns and df['quantidade_pneus'].sum() > 0
-    
-    if has_price_data or has_product_data:
-        col1, col2, col3, col4 = st.columns(4)
         
-        with col1:
-            if has_price_data:
-                valor_total = df['var_preco'].sum()
-                st.metric("💰 Valor Total Mencionado", f"R$ {valor_total:,.0f}")
-            else:
-                st.metric("💰 Valor Total", "N/A")
-                
-        with col2:
-            if has_price_data:
-                conversas_com_preco = (df['var_preco'] > 0).sum()
-                st.metric("💵 Conversas com Preço", f"{conversas_com_preco}")
-            else:
-                st.metric("💵 Conversas com Preço", "0")
-                
-        with col3:
-            if has_product_data:
-                pneus_total = df['quantidade_pneus'].sum()
-                st.metric("🛞 Total Pneus Solicitados", f"{pneus_total:.0f}")
-            else:
-                st.metric("🛞 Total Pneus", "N/A")
-                
-        with col4:
-            if has_price_data:
-                conversas_preco = df[df['var_preco'] > 0]
-                if len(conversas_preco) > 0:
-                    ticket_medio = conversas_preco['var_preco'].mean()
-                    st.metric("🎯 Ticket Médio", f"R$ {ticket_medio:,.0f}")
-                else:
-                    st.metric("🎯 Ticket Médio", "R$ 0")
-            else:
-                st.metric("🎯 Ticket Médio", "N/A")
-        
-        # Análise de produtos mais mencionados
-        if has_product_data and 'modelo_pneu' in df.columns:
-            modelos_count = df[df['modelo_pneu'] != '']['modelo_pneu'].value_counts().head(5)
-            if not modelos_count.empty:
-                st.subheader("🏆 Top 5 Modelos de Pneus Mencionados")
-                
-                fig = px.bar(
-                    x=modelos_count.values,
-                    y=modelos_count.index,
-                    orientation='h',
-                    title="Modelos Mais Procurados",
-                    color=modelos_count.values,
-                    color_continuous_scale='viridis',
-                    text=modelos_count.values
-                )
-                
-                fig.update_traces(texttemplate='%{text}', textposition='outside')
-                fig.update_layout(height=300)
-                st.plotly_chart(fig, use_container_width=True)
-    else:
-        st.info("📊 Dados comerciais não disponíveis na fonte atual")
-
-def create_hourly_analysis(df):
-    """Análise por horário - ESTILO LUIS IMÓVEIS"""
-    if df.empty or 'created_at' not in df.columns or df['created_at'].isna().all():
-        return
-    
-    df_hourly = df.copy()
-    df_hourly['Hora'] = df_hourly['created_at'].dt.hour
-    
-    hourly_stats = df_hourly.groupby('Hora').agg({
-        'conversation_id': 'count',
-        'is_resolved': 'sum'
-    }).reset_index()
-    
-    hourly_stats.columns = ['Hora', 'Total', 'Resolvidas']
-    hourly_stats['Taxa_Resolução'] = (
-        hourly_stats['Resolvidas'] / hourly_stats['Total'] * 100
-    ).round(1)
-    
-    # Identificar horários de pico
-    if len(hourly_stats) > 0:
-        pico_conversas = hourly_stats['Total'].max()
-        horarios_pico = hourly_stats[hourly_stats['Total'] == pico_conversas]['Hora'].tolist()
-        
-        fig = px.line(
-            hourly_stats,
-            x='Hora',
-            y=['Total', 'Resolvidas'],
-            title=f"Distribuição por Horário (Pico: {pico_conversas} conversas às {', '.join(map(str, horarios_pico))}h)",
-            markers=True,
-            color_discrete_sequence=[CORES_TEMA['azul'], CORES_TEMA['verde']]
+        fig.add_trace(
+            go.Scatter(
+                x=df_daily['Data'],
+                y=df_daily['Resolvidas'],
+                mode='lines+markers',
+                name='Resolvidas',
+                line=dict(color=CORES_TEMA['verde'], width=2)
+            ),
+            secondary_y=False,
         )
         
-        fig.update_layout(height=400, xaxis_tickmode='linear')
-        st.plotly_chart(fig, use_container_width=True)
+        fig.update_layout(
+            title_text="Evolução de Conversas ao Longo do Tempo",
+            height=400,
+            plot_bgcolor='rgba(0,0,0,0)',
+            paper_bgcolor='rgba(0,0,0,0)',
+            font=dict(color='white'),
+            title_font_color='white',
+            xaxis=dict(color='white', gridcolor='rgba(255,255,255,0.1)'),
+            yaxis=dict(color='white', gridcolor='rgba(255,255,255,0.1)')
+        )
         
-        # Insights dos melhores horários
-        if len(hourly_stats) > 0:
-            melhor_horario = hourly_stats.loc[hourly_stats['Taxa_Resolução'].idxmax()]
-            st.info(f"💡 **Melhor horário para resolução**: {melhor_horario['Hora']}:00h com {melhor_horario['Taxa_Resolução']:.1f}% de resolução")
+        st.plotly_chart(fig, use_container_width=True)
+    
+    except Exception as e:
+        st.error(f"Erro na análise temporal: {e}")
+
+def create_sentiment_analysis(df):
+    """Análise de sentimento"""
+    if df.empty or 'context_sentiment' not in df.columns:
+        st.info("📊 Análise de sentimento não disponível")
+        return
+    
+    try:
+        sentiment_count = df['sentiment_pt'].value_counts()
+        
+        cores_sentimento = {
+            'Positivo': CORES_TEMA['verde'],
+            'Neutro': CORES_TEMA['cinza'],
+            'Negativo': CORES_TEMA['vermelho']
+        }
+        
+        colors = [cores_sentimento.get(sent, CORES_TEMA['cinza']) for sent in sentiment_count.index]
+        
+        fig = px.pie(
+            values=sentiment_count.values,
+            names=sentiment_count.index,
+            title="Análise de Sentimento (IA)",
+            color_discrete_sequence=colors
+        )
+        
+        fig.update_layout(
+            height=400,
+            plot_bgcolor='rgba(0,0,0,0)',
+            paper_bgcolor='rgba(0,0,0,0)',
+            font=dict(color='white'),
+            title_font_color='white'
+        )
+        st.plotly_chart(fig, use_container_width=True)
+    
+    except Exception as e:
+        st.error(f"Erro na análise de sentimento: {e}")
 
 def main():
-    """Função principal do dashboard - ESTILO LUIS IMÓVEIS"""
+    """Função principal do dashboard"""
     
-    # Header limpo (igual Luis Imóveis)
+    # Header
     st.title("🚀 Dashboard Reach IA")
     st.subheader("Sistema Expandido de Análise de Conversas - v2.1")
     
-    # Sidebar com filtros (igual Luis Imóveis)
+    # Sidebar
     st.sidebar.title("🎛️ Filtros")
     
     # Carregamento de dados
@@ -544,47 +617,18 @@ def main():
         st.error("Não foi possível carregar os dados da planilha")
         st.stop()
     
-    # Filtros na sidebar
-    # Filtro por canal
-    canais_disponiveis = ['Todos'] + list(df['channel'].unique()) if 'channel' in df.columns else ['Todos']
-    canal_selecionado = st.sidebar.selectbox("Filtrar por Canal:", canais_disponiveis)
+    # Filtros básicos
+    if 'channel' in df.columns:
+        canais_disponiveis = ['Todos'] + list(df['channel'].unique())
+        canal_selecionado = st.sidebar.selectbox("Filtrar por Canal:", canais_disponiveis)
+        if canal_selecionado != 'Todos':
+            df = df[df['channel'] == canal_selecionado]
     
-    # Filtro por status
-    status_disponiveis = ['Todos'] + list(df['status'].unique()) if 'status' in df.columns else ['Todos']
-    status_selecionado = st.sidebar.selectbox("Filtrar por Status:", status_disponiveis)
-    
-    # Filtro de período
-    if not df['created_at'].isna().all():
-        data_min = df['created_at'].min().date()
-        data_max = df['created_at'].max().date()
-        
-        periodo_padrao_inicio = max(data_min, data_max - timedelta(days=30))
-        
-        periodo = st.sidebar.date_input(
-            "Período:",
-            value=(periodo_padrao_inicio, data_max),
-            min_value=data_min,
-            max_value=data_max
-        )
-        
-        # Aplicar filtro de período
-        if len(periodo) == 2:
-            mask = (df['created_at'].dt.date >= periodo[0]) & (df['created_at'].dt.date <= periodo[1])
-            df = df[mask]
-    
-    # Filtro de sentimento (se disponível)
-    if 'context_sentiment' in df.columns:
-        sentimentos_disponiveis = ['Todos'] + list(df['sentiment_pt'].unique())
-        sentimento_selecionado = st.sidebar.selectbox("Filtrar por Sentimento:", sentimentos_disponiveis)
-        if sentimento_selecionado != 'Todos':
-            df = df[df['sentiment_pt'] == sentimento_selecionado]
-    
-    # Aplicar filtros
-    if canal_selecionado != 'Todos':
-        df = df[df['channel'] == canal_selecionado]
-    
-    if status_selecionado != 'Todos':
-        df = df[df['status'] == status_selecionado]
+    if 'status' in df.columns:
+        status_disponiveis = ['Todos'] + list(df['status'].unique())
+        status_selecionado = st.sidebar.selectbox("Filtrar por Status:", status_disponiveis)
+        if status_selecionado != 'Todos':
+            df = df[df['status'] == status_selecionado]
     
     # Status do sistema
     st.success(f"✅ Sistema funcionando - {len(df)} conversas encontradas")
@@ -592,7 +636,7 @@ def main():
     # Cards de métricas
     create_metrics_cards(df)
     
-    # Layout em colunas (igual Luis Imóveis)
+    # Layout em colunas
     col1, col2 = st.columns(2)
     
     with col1:
@@ -603,59 +647,53 @@ def main():
         create_channel_analysis(df)
         create_sentiment_analysis(df)
     
-    # Análise por horário
-    st.subheader("⏰ Análise por Horário")
-    create_hourly_analysis(df)
-    
-    # Análise de menções IA
-    st.subheader("🧠 Análise de Menções (IA)")
-    create_product_mentions_analysis(df)
-    
-    # Análise comercial
-    create_commercial_analysis(df)
-    
-    # Tabela de dados detalhados
+    # Tabela de dados
     st.subheader("📋 Dados Detalhados")
     
     if not df.empty:
-        # Preparar colunas para exibição
         colunas_exibir = [
-            'conversation_id', 'created_at', 'status', 'channel', 'priority',
-            'satisfaction_score', 'context_sentiment', 'var_preco', 'quantidade_pneus'
+            'conversation_id', 'created_at', 'status', 'channel', 
+            'satisfaction_score', 'context_sentiment', 'var_preco'
         ]
         
         colunas_disponiveis = [col for col in colunas_exibir if col in df.columns]
         df_display = df[colunas_disponiveis].copy()
         
-        # Formatar dados para exibição
-        if 'created_at' in df_display.columns and not df_display['created_at'].isna().all():
-            df_display['created_at'] = df_display['created_at'].dt.strftime('%d/%m/%Y %H:%M')
+        # Formatar dados
+        if 'created_at' in df_display.columns:
+            try:
+                df_display['created_at'] = df_display['created_at'].dt.strftime('%d/%m/%Y %H:%M')
+            except:
+                pass
         
         if 'var_preco' in df_display.columns:
-            df_display['var_preco'] = df_display['var_preco'].apply(
-                lambda x: f"R$ {x:,.0f}" if x > 0 else "-"
-            )
+            try:
+                df_display['var_preco'] = df_display['var_preco'].apply(
+                    lambda x: f"R$ {x:,.0f}" if pd.notna(x) and x > 0 else "-"
+                )
+            except:
+                pass
         
-        # Mostrar número de registros
-        st.info(f"📊 Mostrando {len(df_display)} registros filtrados")
-        
+        st.info(f"📊 Mostrando {len(df_display)} registros")
         st.dataframe(df_display, use_container_width=True, height=400)
         
-        # Botão de download
-        csv = df_display.to_csv(index=False)
-        st.download_button(
-            label="📥 Download CSV",
-            data=csv,
-            file_name=f'reach_ia_conversas_{datetime.now().strftime("%Y%m%d_%H%M")}.csv',
-            mime='text/csv'
-        )
+        # Download
+        try:
+            csv = df_display.to_csv(index=False)
+            st.download_button(
+                label="📥 Download CSV",
+                data=csv,
+                file_name=f'reach_ia_conversas_{datetime.now().strftime("%Y%m%d_%H%M")}.csv',
+                mime='text/csv'
+            )
+        except Exception as e:
+            st.error(f"Erro no download: {e}")
     
-    # Footer (igual Luis Imóveis)
+    # Footer
     st.markdown("---")
     st.markdown(
         f"**Sistema Expandido v2.1** | "
         f"Última atualização: {datetime.now(pytz.timezone('America/Sao_Paulo')).strftime('%d/%m/%Y %H:%M:%S')} | "
-        f"Dados em tempo real da planilha Google | "
         f"🔄 Cache de 5 minutos"
     )
 
