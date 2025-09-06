@@ -1,9 +1,9 @@
 [theme]
 # Tema personalizado para o dashboard Chatvolt
 primaryColor = "#3498db"
-backgroundColor = "#ffffff"
-secondaryBackgroundColor = "#f0f2f6"
-textColor = "#262730"
+backgroundColor = "#0e1117"
+secondaryBackgroundColor = "#262730"
+textColor = "#fafafa"
 
 [server]
 # Configurações do servidor

@@ -1,211 +1,349 @@
-# 💬 Dashboard Chatvolt Analytics
+# 🚀 Dashboard Reach IA - Sistema Multi-Cliente
 
-Sistema completo de métricas de atendimento em tempo real usando a API Chatvolt.
+Sistema completo de análise de atendimento e conversão de leads com visual moderno dark theme, sistema de login multi-cliente e análises avançadas de IA.
 
-## 🚀 Funcionalidades
+![Python](https://img.shields.io/badge/python-v3.9+-blue.svg)
+![Streamlit](https://img.shields.io/badge/streamlit-v1.29+-red.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
+![Status](https://img.shields.io/badge/status-production-success.svg)
 
-### 📊 Métricas Completas
-- **Histórico de mensagens** completo por conversa
-- **Tempo de atendimento** (primeira resposta e resolução)
-- **Quantidade de atendimentos** por período
-- **Taxa de resolução** e escalação para humanos
-- **Horários de pico** com mapa de calor
-- **Satisfação do cliente** com scoring 1-5
-- **Conversas não respondidas** e abandonadas
-- **Performance por agente** e canal
-- **Análise de frustração** dos clientes
+## 📋 Índice
 
-### ⚡ Tempo Real & Filtros
-- **Auto-refresh** a cada 30 segundos
-- **Filtros flexíveis** por período, canal, status, prioridade
-- **Múltiplas fontes** de dados (Google Sheets + API)
-- **Cache inteligente** para performance
+- [Visão Geral](#-visão-geral)
+- [Funcionalidades](#-funcionalidades)
+- [Arquitetura](#-arquitetura)
+- [Instalação](#-instalação)
+- [Configuração](#-configuração)
+- [Uso](#-uso)
+- [Estrutura do Projeto](#-estrutura-do-projeto)
+- [API](#-api)
+- [Desenvolvimento](#-desenvolvimento)
+- [Deploy](#-deploy)
+- [Troubleshooting](#-troubleshooting)
+- [Contribuindo](#-contribuindo)
 
-## 🛠️ Configuração
+## 🎯 Visão Geral
 
-### 1. Pré-requisitos
+O Dashboard Reach IA é uma plataforma completa de análise de atendimento ao cliente e gestão de leads, desenvolvida para empresas que precisam monitorar e otimizar seus processos de vendas e suporte.
 
+### Características Principais
+
+- **🔐 Sistema Multi-Cliente**: Login seguro com ID + Token único
+- **🎨 Visual Moderno**: Dark theme inspirado em dashboards profissionais
+- **📊 Análises Avançadas**: Funil de conversão, análise de sentimento, lead scoring
+- **⚡ Tempo Real**: Atualização automática de dados a cada 30 segundos
+- **📱 Responsivo**: Funciona perfeitamente em desktop e mobile
+- **🌐 Multi-Canal**: Suporte para WhatsApp, Email, Telefone, Chat
+
+## ✨ Funcionalidades
+
+### Dashboard Principal
+- Cards de métricas com variação percentual
+- Gráficos interativos (linha, pizza, funil, barras)
+- Filtros avançados por período, canal, status, agente
+- Exportação de dados em CSV
+
+### Análise de Leads
+- **Funil de Conversão**: Visualização completa do processo de vendas
+- **Lead Scoring**: Pontuação automática baseada em comportamento
+- **Hot Leads**: Identificação automática de oportunidades quentes
+- **Análise de Sentimento**: IA detecta satisfação do cliente
+
+### Gestão Multi-Cliente
+- Login seguro com autenticação dupla (ID + Token)
+- Dados isolados por cliente
+- Planilha mestre para gestão centralizada
+- Logs de acesso e auditoria
+
+### Visualizações
+- Evolução temporal de contatos
+- Distribuição por canal de atendimento
+- Performance individual por agente
+- Volume de mensagens por período
+- Mapa de calor de horários de pico
+
+## 🏗️ Arquitetura
+
+```
+┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
+│                 │     │                  │     │                 │
+│  Google Sheets  │────▶│  Streamlit App   │────▶│   Dashboard     │
+│   (Data Store)  │     │   (Processing)   │     │  (Visualization)│
+│                 │     │                  │     │                 │
+└─────────────────┘     └──────────────────┘     └─────────────────┘
+        ▲                        │
+        │                        │
+        └────────────────────────┘
+          Auto-sync (5 min)
+```
+
+### Stack Tecnológico
+
+- **Frontend**: Streamlit + Plotly
+- **Backend**: Python 3.9+
+- **Database**: Google Sheets
+- **Auth**: Custom JWT-like system
+- **Deploy**: Streamlit Cloud
+- **CI/CD**: GitHub Actions
+
+## 🛠️ Instalação
+
+### Pré-requisitos
+
+- Python 3.9 ou superior
+- Conta Google com acesso ao Google Sheets
+- Git
+
+### Passo a Passo
+
+1. **Clone o repositório**
 ```bash
-# Instalar dependências
+git clone https://github.com/seu-usuario/chatvolt-dashboard.git
+cd chatvolt-dashboard
+```
+
+2. **Crie ambiente virtual**
+```bash
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+# ou
+venv\Scripts\activate  # Windows
+```
+
+3. **Instale dependências**
+```bash
 pip install -r requirements.txt
 ```
 
-### 2. Configurar API Chatvolt
-
-1. Acesse [Chatvolt Settings](https://app.chatvolt.ai/settings/api-keys)
-2. Gere uma nova API Key
-3. Configure no Streamlit Cloud em **Settings > Secrets**:
-
-```toml
-# secrets.toml
-chatvolt_api_key = "sua_api_key_aqui"
+4. **Configure credenciais**
+```bash
+# Crie arquivo secrets.toml local
+mkdir -p .streamlit
+touch .streamlit/secrets.toml
 ```
 
-### 3. Configurar Google Sheets
+5. **Execute localmente**
+```bash
+streamlit run app.py
+```
 
-1. Crie um projeto no [Google Cloud Console](https://console.cloud.google.com/)
-2. Ative as APIs: **Google Sheets API** e **Google Drive API**
-3. Crie credenciais de conta de serviço (Service Account)
-4. Baixe o arquivo JSON das credenciais
-5. Configure no Streamlit Cloud:
+## ⚙️ Configuração
+
+### 1. Google Cloud Setup
+
+1. Acesse [Google Cloud Console](https://console.cloud.google.com)
+2. Crie um novo projeto
+3. Ative APIs:
+   - Google Sheets API
+   - Google Drive API
+4. Crie Service Account
+5. Baixe credenciais JSON
+
+### 2. Planilha Mestre de Clientes
+
+Estrutura necessária:
+
+| client_id | client_name | token | planilha_id | ativo | created_at |
+|-----------|-------------|-------|-------------|-------|------------|
+| CLI001 | Cliente A | abc123... | 1Ji8h... | TRUE | 2024-01-15 |
+
+### 3. Planilha de Dados do Cliente
+
+Adicione estas colunas na aba "Contatos":
+
+- `lead_stage` (novo/qualificado/convertido/perdido)
+- `lead_qualified_date`
+- `lead_converted_date`
+- `lead_source`
+- `lead_score`
+
+### 4. Arquivo secrets.toml
 
 ```toml
-# secrets.toml
+# ID da planilha mestre
+MASTER_SHEET_ID = "seu_id_aqui"
+
+# Credenciais Google
 [GOOGLE_CREDENTIALS]
 type = "service_account"
 project_id = "seu-projeto"
-private_key_id = "key-id"
-private_key = "-----BEGIN PRIVATE KEY-----\nsua-chave-aqui\n-----END PRIVATE KEY-----\n"
-client_email = "nome@projeto.iam.gserviceaccount.com"
-client_id = "client-id"
+private_key_id = "..."
+private_key = "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+client_email = "...@...iam.gserviceaccount.com"
+client_id = "..."
 auth_uri = "https://accounts.google.com/o/oauth2/auth"
 token_uri = "https://oauth2.googleapis.com/token"
 ```
 
-### 4. Criar Planilha Google Sheets
+## 📱 Uso
 
-Crie uma planilha com as seguintes colunas na aba "Conversas":
+### Login
 
-| Coluna | Descrição |
-|--------|-----------|
-| conversation_id | ID único da conversa |
-| created_at | Data/hora de criação |
-| updated_at | Data/hora da última atualização |
-| status | RESOLVED/UNRESOLVED/HUMAN_REQUESTED |
-| priority | HIGH/MEDIUM/LOW |
-| channel | whatsapp/dashboard/api |
-| visitor_id | ID do visitante |
-| agent_id | ID do agente |
-| frustration_level | Nível 1-5 |
-| first_response_time | Tempo primeira resposta (segundos) |
-| resolution_time | Tempo total resolução (minutos) |
-| message_count | Número de mensagens |
-| satisfaction_score | Satisfação 1-5 |
-| resolved | true/false |
-| escalated_to_human | true/false |
-| contact_name | Nome do contato |
-| contact_email | Email do contato |
+1. Acesse o dashboard
+2. Digite seu ID de cliente (ex: CLI001)
+3. Digite seu token de acesso
+4. Clique em "Entrar"
 
-### 5. Configurar ID da Planilha
+### Navegação
 
-No arquivo principal, substitua:
-```python
-PLANILHA_ID = "YOUR_GOOGLE_SHEETS_ID"
+- **Visão Geral**: Métricas principais e gráficos gerais
+- **Funil de Conversão**: Análise do processo de vendas
+- **Análise de Mensagens**: Volume e distribuição temporal
+- **Performance**: Rankings e análise por agente
+- **Dados Detalhados**: Tabela completa com exportação
+
+### Filtros
+
+- **Período**: Últimos 7/30 dias ou customizado
+- **Canal**: WhatsApp, Email, Telefone, etc
+- **Status**: Resolvido, Pendente, Escalado
+- **Lead Stage**: Novo, Qualificado, Convertido
+- **Satisfação**: Alta, Média, Baixa
+
+## 📁 Estrutura do Projeto
+
+```
+chatvolt-dashboard/
+├── app.py                      # Aplicação principal
+├── requirements.txt            # Dependências
+├── .gitignore                 # Git ignore
+├── README.md                  # Este arquivo
+│
+├── src/                       # Código fonte
+│   ├── components/            # Componentes UI
+│   │   ├── metrics.py        # Cards de métricas
+│   │   ├── charts.py         # Gráficos
+│   │   └── filters.py        # Filtros
+│   │
+│   ├── data/                  # Manipulação de dados
+│   │   ├── collectors.py     # Coleta dados
+│   │   └── processors.py     # Processamento
+│   │
+│   ├── utils/                 # Utilidades
+│   │   └── auth.py           # Autenticação
+│   │
+│   └── styles/                # Estilos
+│       └── dark_theme.py     # Tema escuro
+│
+└── config/                    # Configurações
+    └── settings.py           # Config geral
 ```
 
-Pelo ID da sua planilha (extraído da URL).
+## 🔌 API
 
-## 🔗 Integração Automática com Make
+### Endpoints Internos
 
-Para coleta automática de dados da API Chatvolt:
+```python
+# Autenticação
+auth_manager.authenticate(client_id, token)
 
-### 1. Configurar Make (formerly Integromat)
+# Coleta de dados
+collector.load_data()
 
-1. Acesse [Make](https://www.make.com/)
-2. Crie novo cenário
-3. Adicione trigger: **Chatvolt AI** > **Watch Conversations**
-4. Configure ação: **Google Sheets** > **Add a Row**
+# Processamento
+processor.process_data(df, filters)
+```
 
-### 2. Template Make
+### Estrutura de Dados
 
-```json
+```python
+# Lead
 {
-  "scenario": {
-    "name": "Chatvolt → Google Sheets",
-    "modules": [
-      {
-        "module": "chatvolt:watch_conversations",
-        "webhook": true
-      },
-      {
-        "module": "google_sheets:add_row",
-        "data": {
-          "spreadsheet_id": "{{sheets_id}}",
-          "values": [
-            "{{conversation.id}}",
-            "{{conversation.createdAt}}",
-            "{{conversation.status}}",
-            "{{conversation.priority}}",
-            "{{conversation.channel}}",
-            "{{conversation.frustrationLevel}}"
-          ]
-        }
-      }
-    ]
-  }
+    'conversation_id': str,
+    'lead_stage': 'novo|qualificado|convertido|perdido',
+    'lead_score': int,
+    'is_hot_lead': bool,
+    ...
 }
 ```
 
-## 🚀 Deploy no Streamlit Cloud
+## 💻 Desenvolvimento
 
-1. Faça fork deste repositório
-2. Acesse [Streamlit Cloud](https://share.streamlit.io/)
-3. Conecte seu repositório
-4. Configure as secrets (API keys)
-5. Deploy automático!
+### Setup de Desenvolvimento
 
-## 📊 Uso do Dashboard
+```bash
+# Instalar em modo desenvolvimento
+pip install -e .
 
-### Abas Disponíveis
+# Instalar ferramentas de dev
+pip install black flake8 pytest
 
-1. **📊 Visão Geral**: Status, canais, métricas principais
-2. **⏱️ Tempo de Atendimento**: SLA, distribuição, estatísticas
-3. **📈 Análise Temporal**: Evolução, tendências, sazonalidade  
-4. **😤 Frustração**: Níveis de frustração e correlações
-5. **📋 Dados Detalhados**: Tabela completa + download CSV
+# Executar testes
+pytest tests/
 
-### Filtros Disponíveis
+# Formatar código
+black .
 
-- **Período**: Data inicial e final
-- **Canal**: WhatsApp, Dashboard, API
-- **Status**: Resolvido, Não resolvido, Escalado
-- **Prioridade**: Alta, Média, Baixa
-- **Auto-refresh**: Atualização automática
-
-## 📈 Métricas Calculadas
-
-### Principais KPIs
-- **Volume total** de conversas
-- **Taxa de resolução** (%)
-- **Tempo médio** de primeira resposta
-- **Tempo médio** de resolução
-- **Satisfação média** (1-5)
-- **Taxa de escalação** para humanos
-
-### Análises Avançadas
-- **Distribuição por status** (pizza)
-- **Performance por canal** (barras)
-- **Evolução temporal** (linha)
-- **Mapa de calor** por horário
-- **Histograma** de tempo de resposta
-- **SLA por faixas** de tempo
-
-## 🔧 Customização
-
-### Adicionar Nova Métrica
-
-```python
-def create_custom_metric(df):
-    """Nova métrica customizada"""
-    if df.empty:
-        return
-    
-    # Sua lógica aqui
-    metric_value = df['campo'].mean()
-    
-    fig = px.bar(...)
-    st.plotly_chart(fig)
+# Lint
+flake8 src/
 ```
 
-### Integrar Nova Fonte de Dados
+### Contribuindo
+
+1. Fork o projeto
+2. Crie sua feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abra um Pull Request
+
+## 🚀 Deploy
+
+### Streamlit Cloud
+
+1. Push código para GitHub
+2. Acesse [share.streamlit.io](https://share.streamlit.io)
+3. Conecte repositório
+4. Configure secrets
+5. Deploy!
+
+### Docker (Alternativo)
+
+```dockerfile
+FROM python:3.9-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+
+COPY . .
+
+EXPOSE 8501
+
+CMD ["streamlit", "run", "app.py"]
+```
+
+## 🔧 Troubleshooting
+
+### Problemas Comuns
+
+**Erro de autenticação Google**
+- Verifique se service account tem acesso às planilhas
+- Confirme formato correto do JSON de credenciais
+
+**Dados não aparecem**
+- Verifique ID da planilha
+- Confirme que aba "Contatos" existe
+- Valide formato das datas
+
+**Performance lenta**
+- Ative cache (5 minutos padrão)
+- Limite período de dados
+- Use filtros para reduzir volume
+
+### Logs
 
 ```python
-def collect_custom_data():
-    """Coletor personalizado"""
-    # Conectar com sua API/banco
-    data = requests.get("sua_api_url")
-    return pd.DataFrame(data.json())
+# Ativar logs detalhados
+import logging
+logging.basicConfig(level=logging.DEBUG)
 ```
+
+## 🆘 Suporte
+
+- **Documentação Chatvolt**: [docs.chatvolt.ai](https://docs.chatvolt.ai)
+- **Issues**: Abra uma issue neste repositório
+- **Make Templates**: [make.com/integrations](https://www.make.com/en/integrations/chatvolt-ai)
 
 ## 🔄 Atualizações
 

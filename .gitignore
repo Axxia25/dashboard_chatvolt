@@ -1,39 +1,10 @@
-# ==============================================
-# DASHBOARD CHATVOLT - .GITIGNORE
-# Protege credenciais e arquivos sensíveis
-# ==============================================
-
-# 🔐 CREDENCIAIS E SECRETS (PRIORIDADE MÁXIMA)
-# ===============================================
-# Arquivos de configuração com credenciais reais
-collector_config.json
-collector_config_sample.json
-credentials.json
-service-account.json
-google-credentials.json
-chatvolt-credentials.json
-
-# Secrets do Streamlit
-secrets.toml
-.streamlit/secrets.toml
-
-# Arquivos de ambiente
-.env
-.env.local
-.env.production
-.env.staging
-
-# Chaves de API
-api-keys.txt
-*.key
-*.pem
-
-# 🐍 PYTHON
-# ===============================================
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
+
+# C extensions
+*.so
 
 # Distribution / packaging
 .Python
@@ -82,63 +53,25 @@ coverage.xml
 venv/
 ENV/
 env/
-.env/
 .venv/
+.env/
 myenv/
 
-# 📊 DADOS E LOGS
-# ===============================================
-# Logs de aplicação
+# Streamlit
+.streamlit/secrets.toml
+.streamlit/cache/
 *.log
-logs/
-log/
-chatvolt_collector.log
-app.log
-debug.log
 
-# Dados temporários
-data/
-temp/
-tmp/
-*.tmp
-*.temp
-
-# Backups de dados
-*.bak
-*.backup
-backup/
-
-# 🛠️ DESENVOLVIMENTO
-# ===============================================
-# IDE específicos
+# IDE
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
+.project
+.pydevproject
 
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# pyenv
-.python-version
-
-# Sublime Text
-*.sublime-project
-*.sublime-workspace
-
-# 🏗️ BUILD E DEPLOY
-# ===============================================
-# Node modules (se usar)
-node_modules/
-
-# Build outputs
-build/
-dist/
-
-# 🔄 SISTEMA E OS
-# ===============================================
-# macOS
+# OS
 .DS_Store
 .DS_Store?
 ._*
@@ -147,51 +80,96 @@ dist/
 ehthumbs.db
 Thumbs.db
 
-# Windows
-desktop.ini
-$RECYCLE.BIN/
+# Secrets and credentials
+secrets.toml
+credentials.json
+service-account.json
+google-credentials.json
+*.key
+*.pem
+client_secrets.json
+token.json
 
-# Linux
-*~
+# Local config
+config/local_settings.py
+config/clients_local.json
 
-# 📱 ESPECÍFICOS DO PROJETO
-# ===============================================
-# Arquivos de teste locais
-test_data.json
-test_config.json
-mock_data/
-
-# Screenshots/imagens temporárias
-screenshots/
-temp_images/
-
-# Arquivos de análise temporários
-analysis/
-reports/
-exports/
-
-# Cache do Streamlit
-.streamlit/cache/
-
-# 📦 OUTROS
-# ===============================================
-# Compressed files
-*.zip
-*.tar.gz
-*.rar
-
-# Database files
+# Data files
+data/
+*.csv
+*.xlsx
+*.xls
 *.db
 *.sqlite
 *.sqlite3
 
-# ==============================================
-# SEMPRE MANTER ESTES ARQUIVOS PÚBLICOS:
-# ==============================================
-# ✅ dashboard_chatvolt.py (SEM credenciais)
-# ✅ requirements.txt  
-# ✅ README.md
-# ✅ .streamlit/config.toml
-# ✅ background_collector.py (SEM credenciais)
-# ✅ test_connection.py
-# ✅ Este arquivo .gitignore
+# Logs
+logs/
+*.log
+*.out
+*.err
+
+# Cache
+cache/
+.cache/
+__pycache__/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+*.bak
+*.backup
+*.swp
+
+# Documentation build
+docs/_build/
+docs/.doctrees/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# celery beat schedule file
+celerybeat-schedule
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# Project specific
+downloads/
+exports/
+uploads/
+static/temp/
+media/
+instance/
