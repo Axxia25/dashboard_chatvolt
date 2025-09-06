@@ -207,12 +207,6 @@ def collect_custom_data():
     return pd.DataFrame(data.json())
 ```
 
-## 🆘 Suporte
-
-- **Documentação Chatvolt**: [docs.chatvolt.ai](https://docs.chatvolt.ai)
-- **Issues**: Abra uma issue neste repositório
-- **Make Templates**: [make.com/integrations](https://www.make.com/en/integrations/chatvolt-ai)
-
 ## 🔄 Atualizações
 
 - **v1.0**: Dashboard completo com métricas básicas
