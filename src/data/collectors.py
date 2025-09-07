@@ -9,7 +9,6 @@ import gspread
 from google.oauth2.service_account import Credentials
 from datetime import datetime
 import logging
-import DataCollector
 
 # Configurar logging
 logging.basicConfig(level=logging.INFO)
