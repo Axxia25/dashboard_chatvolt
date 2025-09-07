@@ -95,7 +95,7 @@ config/local_settings.py
 config/clients_local.json
 
 # Data files
-data/
+#data/
 *.csv
 *.xlsx
 *.xls
